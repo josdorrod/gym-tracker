@@ -1,0 +1,40 @@
+@page
+@model GymTracker.Pages.Exercises.CreateModel
+@{
+    ViewData["Title"] = "Nuevo Ejercicio";
+}
+
+<h1>Nuevo Ejercicio</h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="Input.Name" class="form-label">Nombre</label>
+                <input asp-for="Input.Name" class="form-control" />
+                <span asp-validation-for="Input.Name" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Input.MuscleGroup" class="form-label">Grupo Muscular</label>
+                <input asp-for="Input.MuscleGroup" class="form-control" />
+                <span asp-validation-for="Input.MuscleGroup" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Input.Instructions" class="form-label">Instrucciones</label>
+                <textarea asp-for="Input.Instructions" class="form-control" rows="4"></textarea>
+                <span asp-validation-for="Input.Instructions" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Guardar</button>
+            <a asp-page="Index" class="btn btn-outline-secondary ms-2">Cancelar</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,79 @@
+@page "{id:int}"
+@model GymTracker.Pages.Exercises.DetailModel
+@{
+    ViewData["Title"] = Model.Exercise.Name;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>@Model.Exercise.Name</h1>
+    <a asp-page="Index" class="btn btn-outline-secondary">← Volver</a>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.Exercise.MuscleGroup))
+{
+    <p><strong>Grupo Muscular:</strong> @Model.Exercise.MuscleGroup</p>
+}
+
+@if (!string.IsNullOrEmpty(Model.Exercise.Instructions))
+{
+    <p><strong>Instrucciones:</strong> @Model.Exercise.Instructions</p>
+}
+
+<hr />
+
+<h2 class="h4 mb-3">Series registradas</h2>
+
+@if (!Model.Sets.Any())
+{
+    <p class="text-muted">No hay series registradas todavía.</p>
+}
+else
+{
+    <table class="table table-sm table-hover mb-4">
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Peso (kg)</th>
+                <th>Reps</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var set in Model.Sets)
+            {
+                <tr>
+                    <td>@set.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>@set.Weight</td>
+                    <td>@set.Reps</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<h2 class="h4 mb-3">Añadir serie</h2>
+
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="NewSet.Weight" class="form-label">Peso (kg)</label>
+                <input asp-for="NewSet.Weight" class="form-control" type="number" step="0.5" min="0" />
+                <span asp-validation-for="NewSet.Weight" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="NewSet.Reps" class="form-label">Repeticiones</label>
+                <input asp-for="NewSet.Reps" class="form-control" type="number" min="1" />
+                <span asp-validation-for="NewSet.Reps" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-success">Registrar Serie</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
