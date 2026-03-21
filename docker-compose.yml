@@ -1,0 +1,14 @@
+services:
+  gymtracker:
+    build: .
+    container_name: gymtracker
+    ports:
+      - "5000:5000"
+    volumes:
+      - gymtracker_data:/app/gymtracker.db
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+    restart: unless-stopped
+
+volumes:
+  gymtracker_data:
