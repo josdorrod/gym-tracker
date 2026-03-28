@@ -20,7 +20,7 @@ else
             <tr>
                 <th>Nombre</th>
                 <th>Grupo Muscular</th>
-                <th></th>
+                <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
@@ -31,6 +31,7 @@ else
                     <td>@(exercise.MuscleGroup ?? "—")</td>
                     <td>
                         <a asp-page="Detail" asp-route-id="@exercise.Id" class="btn btn-sm btn-outline-secondary">Ver</a>
+                        <a asp-page="Edit" asp-route-id="@exercise.Id" class="btn btn-sm btn-outline-secondary">Editar</a>
                     </td>
                 </tr>
             }

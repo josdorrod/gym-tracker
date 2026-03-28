@@ -1,0 +1,13 @@
+﻿@page
+@model GymTracker.Pages.Exercises.EditModel
+@{
+    ViewData["Title"] = "Editar Ejercicio";
+}
+
+<h1>Editar Ejercicio</h1>
+
+<partial name="_ExerciseForm" model="Model.ExerciseInput" />
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
