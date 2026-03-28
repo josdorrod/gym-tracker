@@ -1,0 +1,36 @@
+
+@model GymTracker.DTO.ExerciseInputDTO
+<div class="row">
+    <div class="col-md-6">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="Name" class="form-label">Nombre</label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="MuscleGroup" class="form-label">Grupo Muscular</label>
+                <input asp-for="MuscleGroup" class="form-control" />
+                <span asp-validation-for="MuscleGroup" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="PlannedSets" class="form-label">Número de Series Planificadas</label>
+                <input asp-for="PlannedSets" class="form-control" />
+                <span asp-validation-for="PlannedSets" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Instructions" class="form-label">Instrucciones</label>
+                <textarea asp-for="Instructions" class="form-control" rows="4"></textarea>
+                <span asp-validation-for="Instructions" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Guardar</button>
+            <a asp-page="Index" class="btn btn-outline-secondary ms-2">Cancelar</a>
+        </form>
+    </div>
+</div>
