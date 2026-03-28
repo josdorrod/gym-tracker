@@ -57,4 +57,18 @@ public class DetailModel(GymTrackerDbContext db) : PageModel
 
         return RedirectToPage(new { id });
     }
+
+    public async Task<IActionResult> OnPostDeleteAsync(int setId)
+    {
+        var set = await db.Sets.FindAsync(setId);
+        if (set is null)
+        {
+            return NotFound();
+        }
+
+        db.Sets.Remove(set);
+        await db.SaveChangesAsync();
+
+        return RedirectToPage();
+    }
 }
