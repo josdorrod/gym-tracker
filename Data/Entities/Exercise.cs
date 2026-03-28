@@ -19,6 +19,10 @@ public class Exercise
     [MaxLength(50)]
     public string? MuscleGroup { get; set; }
 
+    /// <summary>Gets or sets the planned number of sets for this exercise.</summary>
+    [Range(1, 10, ErrorMessage = "El número de series debe ser mayor a 0 y menor a 10.")]
+    public int PlannedSets { get; set; } = 3;
+
     /// <summary>Gets or sets optional instructions for performing the exercise.</summary>
     public string? Instructions { get; set; }
 
