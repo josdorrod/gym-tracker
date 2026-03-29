@@ -1,6 +1,7 @@
 using FluentAssertions;
 using GymTracker.Data;
 using GymTracker.Data.Entities;
+using GymTracker.DTO;
 using GymTracker.Pages.Exercises;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -37,7 +38,7 @@ public class CreateModelTests
         // Arrange
         using var db = CreateDb();
         var model = new CreateModel(db);
-        model.Input = new Exercise { Name = "Sentadilla Libre", MuscleGroup = "Pierna" };
+        model.Input = new ExerciseInputDTO { Name = "Sentadilla Libre", MuscleGroup = "Pierna" };
 
         // Act
         var result = await model.OnPostAsync();
@@ -70,7 +71,7 @@ public class CreateModelTests
         // Arrange
         using var db = CreateDb();
         var model = new CreateModel(db);
-        model.Input = new Exercise { Name = "Peso Muerto" };
+        model.Input = new ExerciseInputDTO { Name = "Peso Muerto" };
 
         // Act
         var result = await model.OnPostAsync();
@@ -78,6 +79,7 @@ public class CreateModelTests
         // Assert
         var redirect = result.Should().BeOfType<RedirectToPageResult>().Subject;
         redirect.RouteValues.Should().ContainKey("id");
-        redirect.RouteValues!["id"].Should().Be(model.Input.Id);
+        var createdExercise = db.Exercises.Single(e => e.Name == "Peso Muerto");
+        redirect.RouteValues!["id"].Should().Be(createdExercise.Id);
     }
 }
