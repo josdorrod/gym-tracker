@@ -33,6 +33,7 @@ else
         <thead>
             <tr>
                 <th>Fecha</th>
+                <th>Serie Nº</th>
                 <th>Peso (kg)</th>
                 <th>Reps</th>
                 <th class="text-end">Acciones</th>
@@ -43,6 +44,7 @@ else
             {
                 <tr>
                     <td>@set.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>@set.SetNumber</td>
                     <td>@set.Weight</td>
                     <td>@set.Reps</td>
                     <td class="text-end">

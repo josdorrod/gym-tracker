@@ -46,9 +46,23 @@ public class DetailModel(GymTrackerDbContext db) : PageModel
             return Page();
         }
 
+        DateTime inicioDia = DateTime.Now.Date;
+        DateTime finDia = inicioDia.AddDays(1).AddTicks(-1);
+
+        long ticksInicioDia = inicioDia.Ticks;
+        long ticksFinDia = finDia.Ticks;
+
+        int setsTodayCount = (await db.Sets
+            .Where(s => s.ExerciseId == id && s.CreatedAtUtcTicks >= ticksInicioDia && s.CreatedAtUtcTicks <= ticksFinDia)
+            .Select(s => (int?)s.SetNumber)
+            .MaxAsync()) ?? 0;
+
+        setsTodayCount +=  1;
+
         db.Sets.Add(new Set
         {
             ExerciseId = id,
+            SetNumber = setsTodayCount,
             Weight = NewSet.Weight,
             Reps = NewSet.Reps,
             CreatedAtUtcTicks = DateTimeOffset.UtcNow.UtcTicks

@@ -22,6 +22,9 @@ public class Set
     [Range(1, 999)]
     public int Reps { get; set; }
 
+    /// <summary>Gets or sets the set number within the exercise.</summary>
+    public int SetNumber { get; set; }
+
     /// <summary>Gets or sets the UTC timestamp ticks when the set was recorded.</summary>
     public long CreatedAtUtcTicks { get; set; }
 
