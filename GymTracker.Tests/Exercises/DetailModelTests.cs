@@ -36,8 +36,8 @@ public class DetailModelTests
 
         // Assert
         result.Should().BeOfType<PageResult>();
-        model.Exercise.Should().NotBeNull();
-        model.Exercise.Name.Should().Be("Press Banca");
+        model.ExerciseDto.Should().NotBeNull();
+        model.ExerciseDto.Name.Should().Be("Press Banca");
         model.Sets.Should().HaveCount(1);
     }
 

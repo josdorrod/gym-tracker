@@ -1,14 +1,16 @@
 using GymTracker.Data;
 using GymTracker.Data.Entities;
+using GymTracker.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using SQLitePCL;
 
 namespace GymTracker.Pages.Exercises;
 
 public class DetailModel(GymTrackerDbContext db) : PageModel
 {
-    public Exercise Exercise { get; set; } = null!;
+    public ExerciseInputDTO ExerciseDto { get; set; } = null!;
     public IList<Set> Sets { get; set; } = [];
 
     [BindProperty]
@@ -20,7 +22,13 @@ public class DetailModel(GymTrackerDbContext db) : PageModel
         if (exercise is null)
             return NotFound();
 
-        Exercise = exercise;
+        ExerciseDto = new ExerciseInputDTO
+        {
+            Name = exercise.Name,
+            MuscleGroup = exercise.MuscleGroup,
+            PlannedSets = exercise.PlannedSets,
+            Instructions = exercise.Instructions
+        };
         Sets = await db.Sets
             .Where(s => s.ExerciseId == id)
             .OrderByDescending(s => s.CreatedAtUtcTicks)
@@ -37,7 +45,13 @@ public class DetailModel(GymTrackerDbContext db) : PageModel
             if (exercise is null)
                 return NotFound();
 
-            Exercise = exercise;
+            ExerciseDto = new ExerciseInputDTO
+            {
+                Name = exercise.Name,
+                MuscleGroup = exercise.MuscleGroup,
+                PlannedSets = exercise.PlannedSets,
+                Instructions = exercise.Instructions
+            };
             Sets = await db.Sets
                 .Where(s => s.ExerciseId == id)
                 .OrderByDescending(s => s.CreatedAtUtcTicks)

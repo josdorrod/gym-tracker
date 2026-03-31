@@ -1,22 +1,23 @@
 @page "{id:int}"
+@using GymTracker.Data.Entities
 @model GymTracker.Pages.Exercises.DetailModel
 @{
-    ViewData["Title"] = Model.Exercise.Name;
+    ViewData["Title"] = Model.ExerciseDto.Name;
 }
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1>@Model.Exercise.Name</h1>
+    <h1>@Model.ExerciseDto.Name</h1>
     <a asp-page="Index" class="btn btn-outline-secondary">← Volver</a>
 </div>
 
-@if (!string.IsNullOrEmpty(Model.Exercise.MuscleGroup))
+@if (!string.IsNullOrEmpty(Model.ExerciseDto.MuscleGroup))
 {
-    <p><strong>Grupo Muscular:</strong> @Model.Exercise.MuscleGroup</p>
+    <p><strong>Grupo Muscular:</strong> @Model.ExerciseDto.MuscleGroup</p>
 }
 
-@if (!string.IsNullOrEmpty(Model.Exercise.Instructions))
+@if (!string.IsNullOrEmpty(Model.ExerciseDto.Instructions))
 {
-    <p><strong>Instrucciones:</strong> @Model.Exercise.Instructions</p>
+    <p><strong>Instrucciones:</strong> @Model.ExerciseDto.Instructions</p>
 }
 
 <hr />
@@ -58,7 +59,7 @@ else
     </table>
 }
 
-<h2 class="h4 mb-3">Añadir serie</h2>
+<h2 class="h4 mb-3">Añadir serie: - @Model.ExerciseDto.PlannedSets</h2>
 
 <div class="row">
     <div class="col-md-4">
