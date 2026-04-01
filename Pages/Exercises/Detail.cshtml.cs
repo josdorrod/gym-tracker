@@ -14,7 +14,7 @@ public class DetailModel(GymTrackerDbContext db) : PageModel
     public IList<Set> Sets { get; set; } = [];
 
     [BindProperty]
-    public Set NewSet { get; set; } = new();
+    public SetInputDTO NewSet { get; set; } = new();
 
     public async Task<IActionResult> OnGetAsync(int id)
     {
