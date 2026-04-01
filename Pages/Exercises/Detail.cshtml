@@ -59,7 +59,14 @@ else
     </table>
 }
 
-<h2 class="h4 mb-3">Añadir serie: - @Model.ExerciseDto.PlannedSets</h2>
+@if (Model.GetSetCount + 1 <= Model.ExerciseDto.PlannedSets)
+{
+    <h2 class="h4 mb-3">Añadir serie: @(Model.GetSetCount + 1) - @Model.ExerciseDto.PlannedSets</h2>
+}
+else
+{
+    <h2 class="h4 mb-3">Series completadas</h2>
+}
 
 <div class="row">
     <div class="col-md-4">

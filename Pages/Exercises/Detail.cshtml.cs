@@ -11,14 +11,34 @@ namespace GymTracker.Pages.Exercises;
 public class DetailModel(GymTrackerDbContext db) : PageModel
 {
     public ExerciseInputDTO ExerciseDto { get; set; } = null!;
-    public IList<Set> Sets { get; set; } = [];
+    public IList<SetDetailListDTO> Sets { get; set; } = [];
 
     [BindProperty]
     public SetInputDTO NewSet { get; set; } = new();
 
+    public int GetSetCount { get; set; } = 0;
+
+    private int GetTodaySetCount(int exerciseId)
+    {
+        DateTime inicioDia = DateTime.Now.Date;
+        DateTime finDia = inicioDia.AddDays(1).AddTicks(-1);
+
+        long ticksInicioDia = inicioDia.Ticks;
+        long ticksFinDia = finDia.Ticks;
+
+        int setsTodayCount = db.Sets
+            .Where(s => s.ExerciseId == exerciseId && s.CreatedAtUtcTicks >= ticksInicioDia && s.CreatedAtUtcTicks <= ticksFinDia)
+            .Select(s => (int?)s.SetNumber)
+            .Max() ?? 0;
+
+        return setsTodayCount;
+    }
+
     public async Task<IActionResult> OnGetAsync(int id)
     {
-        var exercise = await db.Exercises.FindAsync(id);
+        var exercise = await db.Exercises
+        .Include(e => e.Sets)
+        .FirstOrDefaultAsync(e => e.Id == id);
         if (exercise is null)
             return NotFound();
 
@@ -29,10 +49,19 @@ public class DetailModel(GymTrackerDbContext db) : PageModel
             PlannedSets = exercise.PlannedSets,
             Instructions = exercise.Instructions
         };
-        Sets = await db.Sets
-            .Where(s => s.ExerciseId == id)
+        Sets = exercise.Sets
+            .Select(s => new SetDetailListDTO
+            {
+                Id = s.Id,
+                Weight = s.Weight,
+                Reps = s.Reps,
+                SetNumber = s.SetNumber,
+                CreatedAtUtcTicks = s.CreatedAtUtcTicks
+            })
             .OrderByDescending(s => s.CreatedAtUtcTicks)
-            .ToListAsync();
+            .ToList();
+        
+        GetSetCount = GetTodaySetCount(id);
 
         return Page();
     }
@@ -41,7 +70,9 @@ public class DetailModel(GymTrackerDbContext db) : PageModel
     {
         if (!ModelState.IsValid)
         {
-            var exercise = await db.Exercises.FindAsync(id);
+            var exercise = await db.Exercises
+            .Include(e => e.Sets)
+            .FirstOrDefaultAsync(e => e.Id == id);
             if (exercise is null)
                 return NotFound();
 
@@ -52,31 +83,27 @@ public class DetailModel(GymTrackerDbContext db) : PageModel
                 PlannedSets = exercise.PlannedSets,
                 Instructions = exercise.Instructions
             };
-            Sets = await db.Sets
-                .Where(s => s.ExerciseId == id)
+            Sets = exercise.Sets
+                .Select(s => new SetDetailListDTO
+                {
+                    Id = s.Id,
+                    Weight = s.Weight,
+                    Reps = s.Reps,
+                    SetNumber = s.SetNumber,
+                    CreatedAtUtcTicks = s.CreatedAtUtcTicks
+                })
                 .OrderByDescending(s => s.CreatedAtUtcTicks)
-                .ToListAsync();
+                .ToList();
 
             return Page();
         }
 
-        DateTime inicioDia = DateTime.Now.Date;
-        DateTime finDia = inicioDia.AddDays(1).AddTicks(-1);
-
-        long ticksInicioDia = inicioDia.Ticks;
-        long ticksFinDia = finDia.Ticks;
-
-        int setsTodayCount = (await db.Sets
-            .Where(s => s.ExerciseId == id && s.CreatedAtUtcTicks >= ticksInicioDia && s.CreatedAtUtcTicks <= ticksFinDia)
-            .Select(s => (int?)s.SetNumber)
-            .MaxAsync()) ?? 0;
-
-        setsTodayCount +=  1;
+        GetSetCount = GetTodaySetCount(id) + 1;
 
         db.Sets.Add(new Set
         {
             ExerciseId = id,
-            SetNumber = setsTodayCount,
+            SetNumber = GetSetCount,
             Weight = NewSet.Weight,
             Reps = NewSet.Reps,
             CreatedAtUtcTicks = DateTimeOffset.UtcNow.UtcTicks
