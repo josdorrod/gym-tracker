@@ -1,4 +1,5 @@
 using GymTracker.Data;
+using GymTracker.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,6 +8,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddDbContext<GymTrackerDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Register application services.
+builder.Services.AddScoped<IExerciseService, ExerciseService>();
+builder.Services.AddScoped<ISetService, SetService>();
 
 var app = builder.Build();
 

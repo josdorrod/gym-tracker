@@ -1,14 +1,22 @@
 using GymTracker.Data;
 using GymTracker.Data.Entities;
 using GymTracker.DTO;
+using GymTracker.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Validation;
 
 namespace GymTracker.Pages.Exercises;
 
-public class CreateModel(GymTrackerDbContext db) : PageModel
+public class CreateModel : PageModel
 {
+    private readonly IExerciseService _exerciseService;
+
+    public CreateModel(IExerciseService exerciseService)
+    {
+        _exerciseService = exerciseService ?? throw new ArgumentNullException(nameof(exerciseService));
+    }
+
     [BindProperty]
     public ExerciseInputDTO Input { get; set; } = new();
 
@@ -19,17 +27,7 @@ public class CreateModel(GymTrackerDbContext db) : PageModel
         if (!ModelState.IsValid)
             return Page();
         
-        var exercise = new Exercise
-        {
-            Name = Input.Name,
-            MuscleGroup = Input.MuscleGroup,
-            PlannedSets = Input.PlannedSets,
-            Instructions = Input.Instructions
-        };
-
-        db.Exercises.Add(exercise);
-        await db.SaveChangesAsync();
-
-        return RedirectToPage("Detail", new { id = exercise.Id });
+        int exerciseId = await _exerciseService.CreateExerciseAsync(Input);
+        return RedirectToPage("Detail", new { id = exerciseId });
     }
 }

@@ -1,31 +1,32 @@
-using GymTracker.Data;
-using GymTracker.Data.Entities;
 using GymTracker.DTO;
+using GymTracker.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace GymTracker.Pages.Exercises;
 
-public class EditModel(GymTrackerDbContext db) : PageModel
+public class EditModel : PageModel
 {
+    private readonly IExerciseService _exerciseService;
+
+    public EditModel(IExerciseService exerciseService)
+    {
+        _exerciseService = exerciseService ?? throw new ArgumentNullException(nameof(exerciseService));
+    }
+
     [BindProperty]
     public ExerciseInputDTO ExerciseInput {get; set; } = null!;
 
     public async Task<IActionResult> OnGetAsync(int id)
     {
-        var exercise = await db.Exercises.FindAsync(id);
+        var exercise = await _exerciseService.GetExerciseByIdAsync(id);
         if (exercise is null)
         {
             return NotFound();
         }
 
-        ExerciseInput = new ExerciseInputDTO
-        {
-            Name = exercise.Name,
-            MuscleGroup = exercise.MuscleGroup,
-            PlannedSets = exercise.PlannedSets,
-            Instructions = exercise.Instructions
-        };
+        ExerciseInput = exercise;
+
         return Page();
 
     }
@@ -37,18 +38,13 @@ public class EditModel(GymTrackerDbContext db) : PageModel
             return Page();
         }
 
-        var exerciseDb = await db.Exercises.FindAsync(id);
-        if (exerciseDb is null)
+        bool exerciseUpdated = await _exerciseService.UpdateExerciseAsync(id, ExerciseInput);
+
+        if (!exerciseUpdated)
         {
-            return Page();
+            return NotFound();
         }
 
-        exerciseDb.Name = ExerciseInput.Name;
-        exerciseDb.MuscleGroup = ExerciseInput.MuscleGroup;
-        exerciseDb.PlannedSets = ExerciseInput.PlannedSets;
-        exerciseDb.Instructions = ExerciseInput.Instructions;
-
-        await db.SaveChangesAsync();
         return RedirectToPage("Index");
     }
 }
