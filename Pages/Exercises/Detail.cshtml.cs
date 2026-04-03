@@ -19,11 +19,11 @@ public class DetailModel : PageModel
         _setService = setService ?? throw new ArgumentNullException(nameof(exerciseService));
     }
 
-    public ExerciseInputDTO ExerciseDto { get; set; } = null!;
+    public ExerciseCreateDTO ExerciseDto { get; set; } = null!;
     public IList<SetDetailListDTO> Sets { get; set; } = [];
 
     [BindProperty]
-    public SetInputDTO NewSet { get; set; } = new();
+    public SetCreateDTO NewSet { get; set; } = new();
 
     public int GetSetCount { get; set; } = 0;
 

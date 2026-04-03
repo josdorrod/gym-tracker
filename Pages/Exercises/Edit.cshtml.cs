@@ -15,7 +15,7 @@ public class EditModel : PageModel
     }
 
     [BindProperty]
-    public ExerciseInputDTO ExerciseInput {get; set; } = null!;
+    public ExerciseCreateDTO ExerciseInput {get; set; } = null!;
 
     public async Task<IActionResult> OnGetAsync(int id)
     {

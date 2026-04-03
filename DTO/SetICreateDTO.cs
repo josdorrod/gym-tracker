@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
 namespace GymTracker.DTO;
-public class SetInputDTO
+public class SetCreateDTO
 {
     /// <summary>Gets or sets the weight lifted in kilograms.</summary>
     [Range(0, 2000)]

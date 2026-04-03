@@ -18,7 +18,7 @@ public class CreateModel : PageModel
     }
 
     [BindProperty]
-    public ExerciseInputDTO Input { get; set; } = new();
+    public ExerciseCreateDTO Input { get; set; } = new();
 
     public void OnGet() { }
 

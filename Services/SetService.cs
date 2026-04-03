@@ -46,7 +46,7 @@ namespace GymTracker.Services
             .ToListAsync();
         }
 
-        public async Task<int> CreateSetAsync(int exerciseId, SetInputDTO setDto)
+        public async Task<int> CreateSetAsync(int exerciseId, SetCreateDTO setDto)
         {
             if (setDto is null)
             {

@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace GymTracker.DTO;
 
-public class ExerciseInputDTO
+public class ExerciseCreateDTO
 {
     /// <summary>Get or set the name of the exercise.</summary>
     [Required]

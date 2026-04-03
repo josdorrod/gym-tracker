@@ -1,38 +1,36 @@
 using FluentAssertions;
-using GymTracker.Data;
-using GymTracker.Data.Entities;
 using GymTracker.DTO;
 using GymTracker.Pages.Exercises;
+using GymTracker.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
 namespace GymTracker.Tests.Exercises;
 
 [TestClass]
 public class EditModelTests
 {
-    private static GymTrackerDbContext CreateDb()
-    {
-        var options = new DbContextOptionsBuilder<GymTrackerDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-        return new GymTrackerDbContext(options);
-    }
-
     [TestMethod]
     public async Task OnGetAsync_EjercicioExiste_RetornaPaginaConDatosDelEjercicio()
     {
         // Arrange
-        using var db = CreateDb();
-        var exercise = new Exercise { Name = "Sentadilla Libre", MuscleGroup = "Pierna", PlannedSets = 4, Instructions = "Bajar hasta 90 grados" };
-        db.Exercises.Add(exercise);
-        await db.SaveChangesAsync();
-        var model = new EditModel(db);
+        const int exerciseId = 1;
+        var exerciseDto = new ExerciseCreateDTO
+        {
+            Name = "Sentadilla Libre",
+            MuscleGroup = "Pierna",
+            PlannedSets = 4,
+            Instructions = "Bajar hasta 90 grados"
+        };
+
+        var exerciseServiceMock = new Mock<IExerciseService>();
+        exerciseServiceMock.Setup(s => s.GetExerciseByIdAsync(exerciseId)).ReturnsAsync(exerciseDto);
+        var model = new EditModel(exerciseServiceMock.Object);
 
         // Act
-        var result = await model.OnGetAsync(exercise.Id);
+        var result = await model.OnGetAsync(exerciseId);
 
         // Assert
         result.Should().BeOfType<PageResult>();
@@ -46,8 +44,9 @@ public class EditModelTests
     public async Task OnGetAsync_EjercicioNoExiste_RetornaNotFound()
     {
         // Arrange
-        using var db = CreateDb();
-        var model = new EditModel(db);
+        var exerciseServiceMock = new Mock<IExerciseService>();
+        exerciseServiceMock.Setup(s => s.GetExerciseByIdAsync(It.IsAny<int>())).ReturnsAsync((ExerciseCreateDTO?)null);
+        var model = new EditModel(exerciseServiceMock.Object);
 
         // Act
         var result = await model.OnGetAsync(999);
@@ -57,61 +56,60 @@ public class EditModelTests
     }
 
     [TestMethod]
-    public async Task OnPostAsync_ModeloValido_ActualizaEjercicioYRedirigeAIndex()
+    public async Task OnPostAsync_ModeloValido_LlamaAlServicioYRedirigeAIndex()
     {
         // Arrange
-        using var db = CreateDb();
-        var exercise = new Exercise { Name = "Press Banca", MuscleGroup = "Pecho" };
-        db.Exercises.Add(exercise);
-        await db.SaveChangesAsync();
-        var model = new EditModel(db);
-        model.ExerciseInput = new ExerciseInputDTO { Name = "Press Banca Inclinado", MuscleGroup = "Pecho Superior", PlannedSets = 4, Instructions = "Agarre medio" };
+        const int exerciseId = 3;
+        var exerciseServiceMock = new Mock<IExerciseService>();
+        exerciseServiceMock.Setup(s => s.UpdateExerciseAsync(exerciseId, It.IsAny<ExerciseCreateDTO>())).ReturnsAsync(true);
+        var model = new EditModel(exerciseServiceMock.Object);
+        model.ExerciseInput = new ExerciseCreateDTO
+        {
+            Name = "Press Banca Inclinado",
+            MuscleGroup = "Pecho Superior",
+            PlannedSets = 4,
+            Instructions = "Agarre medio"
+        };
 
         // Act
-        var result = await model.OnPostAsync(exercise.Id);
+        var result = await model.OnPostAsync(exerciseId);
 
         // Assert
         result.Should().BeOfType<RedirectToPageResult>()
             .Which.PageName.Should().Be("Index");
-        var updated = await db.Exercises.FindAsync(exercise.Id);
-        updated!.Name.Should().Be("Press Banca Inclinado");
-        updated.MuscleGroup.Should().Be("Pecho Superior");
-        updated.PlannedSets.Should().Be(4);
-        updated.Instructions.Should().Be("Agarre medio");
+        exerciseServiceMock.Verify(s => s.UpdateExerciseAsync(exerciseId, model.ExerciseInput), Times.Once);
     }
 
     [TestMethod]
-    public async Task OnPostAsync_ModeloInvalido_RetornaPaginaSinGuardar()
+    public async Task OnPostAsync_ModeloInvalido_RetornaPaginaSinLlamarAlServicio()
     {
         // Arrange
-        using var db = CreateDb();
-        var exercise = new Exercise { Name = "Peso Muerto", MuscleGroup = "Espalda" };
-        db.Exercises.Add(exercise);
-        await db.SaveChangesAsync();
-        var model = new EditModel(db);
+        var exerciseServiceMock = new Mock<IExerciseService>();
+        var model = new EditModel(exerciseServiceMock.Object);
         model.ModelState.AddModelError("ExerciseInput.Name", "El nombre es obligatorio");
 
         // Act
-        var result = await model.OnPostAsync(exercise.Id);
+        var result = await model.OnPostAsync(1);
 
         // Assert
         result.Should().BeOfType<PageResult>();
-        var unchanged = await db.Exercises.FindAsync(exercise.Id);
-        unchanged!.Name.Should().Be("Peso Muerto");
+        exerciseServiceMock.Verify(s => s.UpdateExerciseAsync(It.IsAny<int>(), It.IsAny<ExerciseCreateDTO>()), Times.Never);
     }
 
     [TestMethod]
-    public async Task OnPostAsync_EjercicioNoExiste_RetornaPagina()
+    public async Task OnPostAsync_EjercicioNoExiste_RetornaNotFound()
     {
         // Arrange
-        using var db = CreateDb();
-        var model = new EditModel(db);
-        model.ExerciseInput = new ExerciseInputDTO { Name = "Curl Bíceps" };
+        const int nonExistentId = 999;
+        var exerciseServiceMock = new Mock<IExerciseService>();
+        exerciseServiceMock.Setup(s => s.UpdateExerciseAsync(nonExistentId, It.IsAny<ExerciseCreateDTO>())).ReturnsAsync(false);
+        var model = new EditModel(exerciseServiceMock.Object);
+        model.ExerciseInput = new ExerciseCreateDTO { Name = "Curl Bíceps" };
 
         // Act
-        var result = await model.OnPostAsync(999);
+        var result = await model.OnPostAsync(nonExistentId);
 
         // Assert
-        result.Should().BeOfType<PageResult>();
+        result.Should().BeOfType<NotFoundResult>();
     }
 }

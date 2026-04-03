@@ -18,7 +18,7 @@ public class ExerciseService : IExerciseService
     /// </summary>
     /// <param name="id">The id of the exercise.</param>
     /// <returns>The exercise DTO if found, otherwise null.</returns>
-    public async Task<ExerciseInputDTO?> GetExerciseByIdAsync(int id)
+    public async Task<ExerciseCreateDTO?> GetExerciseByIdAsync(int id)
     {
         var exercise = await _db.Exercises
             .Include(e => e.Sets)
@@ -28,7 +28,7 @@ public class ExerciseService : IExerciseService
             return null;
         }
         
-        return new ExerciseInputDTO
+        return new ExerciseCreateDTO
         {
             Name = exercise.Name,
             MuscleGroup = exercise.MuscleGroup,
@@ -60,7 +60,7 @@ public class ExerciseService : IExerciseService
     /// <param name="exerciseDto">The exercise DTO containing the data for the new exercise.</param>
     /// <returns>The id of the newly created exercise.</returns>
     /// <exception cref="ArgumentNullException"></exception>
-    public async Task<int> CreateExerciseAsync(ExerciseInputDTO exerciseDto)
+    public async Task<int> CreateExerciseAsync(ExerciseCreateDTO exerciseDto)
     {
         if (exerciseDto is null)
         {
@@ -87,7 +87,7 @@ public class ExerciseService : IExerciseService
     /// <param name="exerciseDto">The exercise DTO containing the updated data.</param>
     /// <returns>True if the exercise was found and updated, false otherwise.</returns>
     /// <exception cref="ArgumentNullException"></exception>
-    public async Task<bool> UpdateExerciseAsync(int id, ExerciseInputDTO exerciseDto)
+    public async Task<bool> UpdateExerciseAsync(int id, ExerciseCreateDTO exerciseDto)
     {
         if (exerciseDto is null)
         {
