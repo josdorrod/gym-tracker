@@ -13,10 +13,11 @@ public class DetailModel : PageModel
 {
     private readonly IExerciseService _exerciseService;
     private readonly ISetService _setService;
+
     public DetailModel(IExerciseService exerciseService, ISetService setService)
     {
         _exerciseService = exerciseService ?? throw new ArgumentNullException(nameof(exerciseService));
-        _setService = setService ?? throw new ArgumentNullException(nameof(exerciseService));
+        _setService = setService ?? throw new ArgumentNullException(nameof(setService));
     }
 
     public ExerciseCreateDTO ExerciseDto { get; set; } = null!;

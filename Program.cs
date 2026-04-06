@@ -12,6 +12,7 @@ builder.Services.AddDbContext<GymTrackerDbContext>(options =>
 // Register application services.
 builder.Services.AddScoped<IExerciseService, ExerciseService>();
 builder.Services.AddScoped<ISetService, SetService>();
+builder.Services.AddScoped<IDbExceptionHelper, SqliteDbExceptionHelper>();
 
 var app = builder.Build();
 

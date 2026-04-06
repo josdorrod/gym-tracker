@@ -28,6 +28,9 @@ public class Set
     /// <summary>Gets or sets the UTC timestamp ticks when the set was recorded.</summary>
     public long CreatedAtUtcTicks { get; set; }
 
+    /// <summary>Gets or sets the UTC date ticks when the set was recorded (for easier querying).</summary>
+    public long CreatedAtUtcDateTicks { get; private set;}
+
     /// <summary>Gets or sets the navigation property to the parent exercise.</summary>
     public Exercise? Exercise { get; set; }
 }

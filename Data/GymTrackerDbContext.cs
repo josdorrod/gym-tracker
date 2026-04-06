@@ -1,3 +1,4 @@
+using System.Reflection.Emit;
 using GymTracker.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,5 +25,15 @@ public class GymTrackerDbContext(DbContextOptions<GymTrackerDbContext> options) 
             .WithOne(s => s.Exercise)
             .HasForeignKey(s => s.ExerciseId)
             .OnDelete(DeleteBehavior.Cascade);
+        
+        modelBuilder.Entity<Set>(eb =>
+        {
+            eb.Property(s => s.CreatedAtUtcDateTicks)
+            .HasComputedColumnSql("([CreatedAtUtcTicks] / 864000000000) * 864000000000", stored: true);
+
+            eb.HasIndex(s => new { s.ExerciseId, s.CreatedAtUtcDateTicks, s.SetNumber})
+            .IsUnique()
+            .HasDatabaseName("IX_Sets_Exercise_Date_SetNumber");
+        });
     }
 }
