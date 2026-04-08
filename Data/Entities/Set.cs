@@ -11,6 +11,9 @@ public class Set
     /// <summary>Gets or sets the primary key.</summary>
     public int Id { get; set; }
 
+    /// <summary>Gets or sets the foreign key to the parent workout session.</summary>
+    public int? WorkoutSessionId { get; set; }
+
     /// <summary>Gets or sets the foreign key to the parent exercise.</summary>
     public int ExerciseId { get; set; }
 
@@ -33,4 +36,7 @@ public class Set
 
     /// <summary>Gets or sets the navigation property to the parent exercise.</summary>
     public Exercise? Exercise { get; set; }
+
+    /// <summary>Gets or sets the navigation property to the parent workout session.</summary>
+    public WorkoutSession? WorkoutSession { get; set; }
 }
