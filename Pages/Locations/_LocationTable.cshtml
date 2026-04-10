@@ -1,0 +1,50 @@
+@model IEnumerable<GymTracker.DTO.LocationListDTO>
+
+@if (!Model.Any())
+{
+    <div class="location-empty-state text-center py-5">
+        <h2 class="h4 mb-2">Todavía no hay ubicaciones</h2>
+        <p class="text-muted mb-0">Crea la primera ubicación para poder asociarla a futuras sesiones.</p>
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th class="text-end">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var location in Model)
+                {
+                    <tr>
+                        <td class="fw-semibold">@location.Name</td>
+                        <td>
+                            <div class="d-flex justify-content-end gap-2">
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-secondary"
+                                        data-modal-url="@Url.Page("Edit", new { id = location.Id })"
+                                        data-modal-title="Editar ubicación"
+                                        data-modal-refresh-url="@Url.Page("List")"
+                                        data-modal-refresh-target="#locations-list-container">
+                                    Editar
+                                </button>
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-danger"
+                                        data-modal-url="@Url.Page("Delete", new { id = location.Id })"
+                                        data-modal-title="Eliminar ubicación"
+                                        data-modal-refresh-url="@Url.Page("List")"
+                                        data-modal-refresh-target="#locations-list-container">
+                                    Eliminar
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

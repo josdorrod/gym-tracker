@@ -21,6 +21,57 @@ body {
   margin-bottom: 60px;
 }
 
+.location-shell {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.location-hero {
+  padding: 1.5rem;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 1rem;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(232, 245, 255, 0.9));
+  box-shadow: 0 1rem 2.5rem rgba(18, 38, 63, 0.08);
+}
+
+.location-eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.75rem;
+  color: var(--bs-primary);
+  font-weight: 700;
+}
+
+.location-list-panel {
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 1rem;
+  overflow: hidden;
+  background-color: #fff;
+  box-shadow: 0 1rem 2rem rgba(18, 38, 63, 0.06);
+}
+
+.location-empty-state {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+.location-modal-shell {
+  border: 0;
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.location-delete-card {
+  padding: 1rem 1.25rem;
+  border-radius: 0.75rem;
+  background-color: rgba(220, 53, 69, 0.08);
+  border: 1px solid rgba(220, 53, 69, 0.15);
+}
+
+.validation-summary-valid {
+  display: none;
+}
+
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
   color: var(--bs-secondary-color);
   text-align: end;

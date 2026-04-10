@@ -1,0 +1,48 @@
+@page
+@model GymTracker.Pages.Locations.IndexModel
+@{
+    ViewData["Title"] = "Ubicaciones";
+}
+
+<section class="location-shell">
+    <div class="p-4 border rounded-4 bg-light shadow-lg d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+        <div>
+            <p class="location-eyebrow mb-2">Gestión rápida</p>
+            <h1 class="mb-2">Ubicaciones</h1>
+            <p class="text-muted mb-0">Crea, edita y elimina gimnasios sin salir del listado.</p>
+        </div>
+        <button type="button"
+                class="btn btn-primary"
+                data-modal-url="@Url.Page("Create")"
+                data-modal-title="Nueva ubicación"
+                data-modal-refresh-url="@Url.Page("List")"
+                data-modal-refresh-target="#locations-list-container">
+            Nueva ubicación
+        </button>
+    </div>
+
+    <div id="locations-list-container" class="location-list-panel">
+        <partial name="_LocationTable" model="Model.Locations" />
+    </div>
+</section>
+
+<div class="modal fade" id="crud-modal" tabindex="-1" aria-labelledby="crud-modal-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content location-modal-shell">
+            <div class="modal-header">
+                <h2 class="modal-title fs-5" id="crud-modal-title">Gestionar ubicación</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body" data-modal-body>
+                <div class="location-modal-loading text-center py-4">
+                    <div class="spinner-border text-primary" role="status" aria-hidden="true"></div>
+                    <p class="text-muted mt-3 mb-0">Cargando formulario…</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
