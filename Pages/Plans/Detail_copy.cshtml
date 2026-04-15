@@ -1,0 +1,46 @@
+﻿@page "{id:int}"
+@model GymTracker.Pages.Plans.DetailModel
+
+<h1>@Model.PlanDto.Name</h1>
+
+<form method="get" class="mb-3">
+    <input type="hidden" name="id" value="@RouteData.Values["id"]" />
+    <input type="text" name="searchExercise" value="@Model.SearchExerciseQuery" placeholder="Buscar ejercicio..." class="form-control" />
+    <button type="submit" class="btn btn-primary mt-2">Buscar</button>
+</form>
+
+@if (!Model.SearchResults.Any())
+{
+    <p class="text-muted">No se encontraron ejercicios.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Grupo muscular</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var exercise in Model.SearchResults)
+        {
+            <tr>
+                <td>@exercise.Name</td>
+                <td>@exercise.MuscleGroup</td>
+                <td>
+                    <form method="post" asp-page-handler="AddExercise">
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <input type="hidden" name="exerciseId" value="@exercise.Id" />
+                        <input type="hidden" name="searchExercise" value="@Model.SearchExerciseQuery" />
+                        <button type="submit" class="btn btn-sm btn-outline-primary">
+                            Añadir
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

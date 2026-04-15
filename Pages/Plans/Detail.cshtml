@@ -1,0 +1,98 @@
+﻿@page "{id:int}"
+@model GymTracker.Pages.Plans.DetailModel
+
+<div class="container py-4">
+
+    <!-- HEADER PLAN -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-0">@Model.PlanDto.Name</h2>
+            <small class="text-muted">Gestiona ejercicios del plan</small>
+        </div>
+
+        <span class="badge bg-primary fs-6">
+            @Model.PlanExercises.Count ejercicios
+        </span>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- LEFT: PLAN -->
+        <div class="col-lg-5">
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white">
+                    <strong>Ejercicios del plan</strong>
+                </div>
+
+                <div class="list-group list-group-flush">
+
+                    @foreach (var ex in Model.PlanExercises)
+                    {
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+
+                            <div>
+                                <div class="fw-semibold">@ex.Name</div>
+                                <small class="text-muted">@ex.MuscleGroup</small>
+                            </div>
+
+                            <form method="post" asp-page-handler="RemoveExercise">
+                                <input type="hidden" name="exerciseId" value="@ex.Id" />
+                                <button class="btn btn-sm btn-outline-danger">
+                                    ✕
+                                </button>
+                            </form>
+
+                        </div>
+                    }
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT: LIBRARY -->
+        <div class="col-lg-7">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-header bg-white">
+                    <strong>Añadir ejercicios</strong>
+                </div>
+
+                <div class="card-body">
+
+                    <!-- SEARCH -->
+                    <form method="get" class="mb-3">
+                        <input type="hidden" name="id" value="@RouteData.Values["id"]" />
+                        <input type="text" class="form-control mb-3"
+                            placeholder="Buscar ejercicio... (press, squat, curl...)" name="searchExercise" /> 
+                    </form>
+
+                    <!-- LIST -->
+                    <div class="list-group">
+
+                        @foreach (var ex in Model.SearchResults)
+                        {
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+
+                                <div>
+                                    <div class="fw-semibold">@ex.Name</div>
+                                    <small class="text-muted">@ex.MuscleGroup</small>
+                                </div>
+                                <form method="post" asp-page-handler="AddExercise">
+                                    <input type="hidden" name="id" value="@Model.Id" />
+                                    <input type="hidden" name="exerciseId" value="@ex.Id" />
+                                    <input type="hidden" name="searchExercise" value="@Model.SearchExerciseQuery" />
+                                    <button type="submit" class="btn btn-sm btn-outline-primary">
+                                        Añadir
+                                    </button>
+                                </form>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
