@@ -2,6 +2,8 @@ using GymTracker.Data;
 using GymTracker.DTO;
 using Microsoft.EntityFrameworkCore;
 using GymTracker.Data.Entities;
+using System.Security.Cryptography.X509Certificates;
+using System.Reflection.Metadata.Ecma335;
 
 namespace GymTracker.Services;
 public class ExerciseService : IExerciseService
@@ -13,11 +15,7 @@ public class ExerciseService : IExerciseService
         _db = db ?? throw new ArgumentNullException(nameof(db));
     }
 
-    /// <summary>
-    /// Gets an exercise by its id. Returns null if not found.
-    /// </summary>
-    /// <param name="id">The id of the exercise.</param>
-    /// <returns>The exercise DTO if found, otherwise null.</returns>
+    /// <inheritdoc/>
     public async Task<ExerciseCreateDTO?> GetExerciseByIdAsync(int id)
     {
         var exercise = await _db.Exercises
@@ -37,10 +35,7 @@ public class ExerciseService : IExerciseService
         };
     }
 
-    /// <summary>
-    /// Gets all exercises in the database, ordered by name.
-    /// </summary>
-    /// <returns>A list of exercise DTOs.</returns>
+    /// <inheritdoc/>
     public async Task<List<ExerciseListDTO>> GetAllExercisesAsync()
     {
         return await _db.Exercises
@@ -54,9 +49,7 @@ public class ExerciseService : IExerciseService
             .ToListAsync();
     }
 
-    /// <summary>
-    /// Creates a new exercise in the database and returns its id.
-    /// </summary>
+    /// <inheritdoc/>
     /// <param name="exerciseDto">The exercise DTO containing the data for the new exercise.</param>
     /// <returns>The id of the newly created exercise.</returns>
     /// <exception cref="ArgumentNullException"></exception>
@@ -80,9 +73,7 @@ public class ExerciseService : IExerciseService
         return exercise.Id;
     }
 
-    /// <summary>
-    /// Updates an existing exercise in the database. Returns true if the exercise was found and updated, false otherwise.
-    /// </summary>
+    /// <inheritdoc/>
     /// <param name="id">The id of the exercise to update.</param>
     /// <param name="exerciseDto">The exercise DTO containing the updated data.</param>
     /// <returns>True if the exercise was found and updated, false otherwise.</returns>
@@ -108,5 +99,30 @@ public class ExerciseService : IExerciseService
         await _db.SaveChangesAsync();
 
         return true;
+    }
+
+    /// <inheritdoc/>
+    public async Task<List<ExerciseListDTO>> SearchExercisesAsync(string? query)
+    {
+        IQueryable<Exercise> exercises = _db.Exercises;
+        if (!string.IsNullOrEmpty(query))
+        {
+            string search = query.ToLower().Trim();
+
+            exercises = exercises.Where(e =>
+                e.Name.ToLower().Contains(search)
+                || (e.MuscleGroup != null &&
+                    e.MuscleGroup.ToLower().Contains(search)));
+        }
+    
+        return await exercises
+            .OrderBy(e => e.Name)
+            .Select(e => new ExerciseListDTO
+            {
+                Id = e.Id,
+                Name = e.Name,
+                MuscleGroup = e.MuscleGroup
+            })
+            .ToListAsync();
     }
 }
