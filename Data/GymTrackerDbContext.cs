@@ -74,14 +74,14 @@ public class GymTrackerDbContext(DbContextOptions<GymTrackerDbContext> options) 
             .HasName("PK_PlanExercises");
 
         modelBuilder.Entity<PlanExercise>()
-            .HasOne<Exercise>()
+            .HasOne(pe => pe.Exercise)
             .WithMany()
             .HasForeignKey(pe => pe.ExerciseId)
             .OnDelete(DeleteBehavior.Cascade);
         
         modelBuilder.Entity<PlanExercise>()
-            .HasOne<Plan>()
-            .WithMany()
+            .HasOne(pe => pe.Plan)
+            .WithMany(p => p.PlanExercises)
             .HasForeignKey(pe => pe.PlanId)
             .OnDelete(DeleteBehavior.Cascade);
     }
