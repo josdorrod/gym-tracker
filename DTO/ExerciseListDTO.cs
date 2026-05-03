@@ -4,7 +4,7 @@ namespace GymTracker.DTO
 {
     public class ExerciseListDTO
     {
-            /// <summary>Gets or sets the primary key.</summary>
+        /// <summary>Gets or sets the primary key.</summary>
         public int Id { get; set; }
 
         /// <summary>Gets or sets the name of the exercise.</summary>
@@ -14,6 +14,10 @@ namespace GymTracker.DTO
 
         /// <summary>Gets or sets the muscle group targeted by this exercise.</summary>
         [MaxLength(50)]
-        public string? MuscleGroup { get; set; }    
+        public string? MuscleGroup { get; set; }
+
+        /// <summary>Gets or sets the number of planned sets for the exercise.</summary>
+        [Range(1, 10)]
+        public int PlannedSets { get; set; }
     }
 }

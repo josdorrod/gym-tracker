@@ -7,10 +7,12 @@
 <form method="post" asp-page="/Locations/Create" data-modal-form novalidate>
     <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3" role="alert"></div>
 
+    <p class="text-soft mb-4">Añade una nueva ubicacion para asociarla mas adelante a futuras sesiones o referencias internas.</p>
+
     <partial name="_LocationFormFields" model="Model.Input" />
 
-    <div class="d-flex justify-content-end gap-2 pt-3 border-top mt-4">
+    <div class="form-actions justify-content-end pt-3 border-top mt-4">
         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button type="submit" class="btn btn-primary">Guardar ubicación</button>
+        <button type="submit" class="btn btn-primary">Guardar ubicacion</button>
     </div>
 </form>

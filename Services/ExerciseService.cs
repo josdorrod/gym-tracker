@@ -44,7 +44,8 @@ public class ExerciseService : IExerciseService
             {
                 Id = e.Id,
                 Name = e.Name,
-                MuscleGroup = e.MuscleGroup 
+                MuscleGroup = e.MuscleGroup,
+                PlannedSets = e.PlannedSets
             })
             .ToListAsync();
     }
@@ -121,7 +122,8 @@ public class ExerciseService : IExerciseService
             {
                 Id = e.Id,
                 Name = e.Name,
-                MuscleGroup = e.MuscleGroup
+                MuscleGroup = e.MuscleGroup,
+                PlannedSets = e.PlannedSets
             })
             .ToListAsync();
     }

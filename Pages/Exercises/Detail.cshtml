@@ -5,90 +5,140 @@
     ViewData["Title"] = Model.ExerciseDto.Name;
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h1>@Model.ExerciseDto.Name</h1>
-    <a asp-page="Index" class="btn btn-outline-secondary">← Volver</a>
-</div>
-
-@if (!string.IsNullOrEmpty(Model.ExerciseDto.MuscleGroup))
-{
-    <p><strong>Grupo Muscular:</strong> @Model.ExerciseDto.MuscleGroup</p>
-}
-
-@if (!string.IsNullOrEmpty(Model.ExerciseDto.Instructions))
-{
-    <p><strong>Instrucciones:</strong> @Model.ExerciseDto.Instructions</p>
-}
-
-<hr />
-
-<h2 class="h4 mb-3">Series registradas</h2>
-
-@if (!Model.Sets.Any())
-{
-    <p class="text-muted">No hay series registradas todavía.</p>
-}
-else
-{
-    <table class="table table-sm table-hover mb-4">
-        <thead>
-            <tr>
-                <th>Fecha</th>
-                <th>Serie Nº</th>
-                <th>Peso (kg)</th>
-                <th>Reps</th>
-                <th class="text-end">Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var set in Model.Sets)
-            {
-                <tr>
-                    <td>@set.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
-                    <td>@set.SetNumber</td>
-                    <td>@set.Weight</td>
-                    <td>@set.Reps</td>
-                    <td class="text-end">
-                        <form method="post" asp-page-handler="Delete" asp-route-setId="@set.Id" class="d-inline">
-                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Eliminar esta serie?');">Eliminar</button>
-                        </form>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-
-@if (Model.GetSetCount + 1 <= Model.ExerciseDto.PlannedSets)
-{
-    <h2 class="h4 mb-3">Añadir serie: @(Model.GetSetCount + 1) - @Model.ExerciseDto.PlannedSets</h2>
-}
-else
-{
-    <h2 class="h4 mb-3">Series completadas</h2>
-}
-
-<div class="row">
-    <div class="col-md-4">
-        <form method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-            <div class="mb-3">
-                <label asp-for="NewSet.Weight" class="form-label">Peso (kg)</label>
-                <input asp-for="NewSet.Weight" class="form-control" type="number" step="0.5" min="0" />
-                <span asp-validation-for="NewSet.Weight" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="NewSet.Reps" class="form-label">Repeticiones</label>
-                <input asp-for="NewSet.Reps" class="form-control" type="number" min="1" />
-                <span asp-validation-for="NewSet.Reps" class="text-danger"></span>
-            </div>
-
-            <button type="submit" class="btn btn-success">Registrar Serie</button>
-        </form>
+<section class="page-shell">
+    <div class="page-hero d-flex flex-column flex-xl-row justify-content-between gap-4 align-items-xl-center">
+        <div>
+            <p class="page-kicker">Detalle de ejercicio</p>
+            <h1 class="page-title">@Model.ExerciseDto.Name</h1>
+            <p class="page-subtitle">Consulta su configuracion, revisa el historial de series y registra el siguiente bloque de trabajo sin salir de contexto.</p>
+        </div>
+        <div class="hero-actions">
+            <span class="metric-chip">@Model.GetSetCount de @Model.ExerciseDto.PlannedSets series</span>
+            <a asp-page="Edit" asp-route-id="@RouteData.Values["id"]" class="btn btn-outline-secondary">Editar ejercicio</a>
+            <a asp-page="Index" class="btn btn-outline-primary">Volver al listado</a>
+        </div>
     </div>
-</div>
+
+    <div class="metric-grid">
+        <div class="metric-card">
+            <p class="page-kicker mb-2">Grupo muscular</p>
+            <h2 class="h5 mb-0">@(string.IsNullOrWhiteSpace(Model.ExerciseDto.MuscleGroup) ? "Sin definir" : Model.ExerciseDto.MuscleGroup)</h2>
+        </div>
+        <div class="metric-card">
+            <p class="page-kicker mb-2">Series objetivo</p>
+            <h2 class="h5 mb-0">@Model.ExerciseDto.PlannedSets</h2>
+        </div>
+        <div class="metric-card">
+            <p class="page-kicker mb-2">Series registradas</p>
+            <h2 class="h5 mb-0">@Model.GetSetCount</h2>
+        </div>
+    </div>
+
+    <div class="content-grid two-columns">
+        <div class="section-panel">
+            <div class="panel-header">
+                <div>
+                    <h2 class="panel-title">Informacion y registro</h2>
+                    <p class="panel-subtitle">Toda la actividad del ejercicio queda visible en una misma pantalla.</p>
+                </div>
+            </div>
+
+            <div class="detail-card mb-4">
+                <div class="detail-list">
+                    <div class="detail-item">
+                        <span class="detail-label">Grupo muscular</span>
+                        <p class="detail-value">@(string.IsNullOrWhiteSpace(Model.ExerciseDto.MuscleGroup) ? "Sin definir" : Model.ExerciseDto.MuscleGroup)</p>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Instrucciones</span>
+                        <p class="detail-value">@(string.IsNullOrWhiteSpace(Model.ExerciseDto.Instructions) ? "Todavia no hay instrucciones registradas para este ejercicio." : Model.ExerciseDto.Instructions)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-header">
+                <div>
+                    <h2 class="panel-title">Series registradas</h2>
+                    <p class="panel-subtitle">Revisa fecha, peso, repeticiones y elimina registros cuando sea necesario.</p>
+                </div>
+            </div>
+
+            @if (!Model.Sets.Any())
+            {
+                <div class="empty-state">
+                    <h2>No hay series registradas todavia</h2>
+                    <p>Usa el formulario lateral para registrar la primera serie de este ejercicio.</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-shell table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Serie</th>
+                                <th>Peso</th>
+                                <th>Repeticiones</th>
+                                <th class="text-end">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var set in Model.Sets)
+                            {
+                                <tr>
+                                    <td>@set.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>@set.SetNumber</td>
+                                    <td>@set.Weight kg</td>
+                                    <td>@set.Reps</td>
+                                    <td class="text-end">
+                                        <form method="post" asp-page-handler="Delete" asp-route-setId="@set.Id" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar esta serie?');">Eliminar</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+
+        <div class="form-card align-self-start">
+            <p class="page-kicker">Nueva serie</p>
+            @if (Model.GetSetCount + 1 <= Model.ExerciseDto.PlannedSets)
+            {
+                <h2 class="h4 mb-2">Registrar serie @(Model.GetSetCount + 1)</h2>
+                <p class="text-soft mb-4">Aun quedan @(Model.ExerciseDto.PlannedSets - Model.GetSetCount) series objetivo por completar.</p>
+            }
+            else
+            {
+                <h2 class="h4 mb-2">Series objetivo completadas</h2>
+                <p class="text-soft mb-4">Puedes seguir registrando volumen adicional si lo necesitas.</p>
+            }
+
+            <form method="post">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4" role="alert"></div>
+
+                <div class="mb-3">
+                    <label asp-for="NewSet.Weight" class="form-label">Peso (kg)</label>
+                    <input asp-for="NewSet.Weight" class="form-control" type="number" step="0.5" min="0" placeholder="Ej. 60" />
+                    <span asp-validation-for="NewSet.Weight" class="text-danger"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="NewSet.Reps" class="form-label">Repeticiones</label>
+                    <input asp-for="NewSet.Reps" class="form-control" type="number" min="1" placeholder="Ej. 10" />
+                    <span asp-validation-for="NewSet.Reps" class="text-danger"></span>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Registrar serie</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

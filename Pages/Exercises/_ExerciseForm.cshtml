@@ -1,36 +1,39 @@
-
 @model GymTracker.DTO.ExerciseCreateDTO
-<div class="row">
-    <div class="col-md-6">
-        <form method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="form-card">
+    <form method="post">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4" role="alert"></div>
 
-            <div class="mb-3">
+        <div class="row g-4">
+            <div class="col-lg-6">
                 <label asp-for="Name" class="form-label">Nombre</label>
-                <input asp-for="Name" class="form-control" />
+                <input asp-for="Name" class="form-control" placeholder="Ej. Press banca con barra" />
+                <div class="field-hint">Usa un nombre claro y facil de identificar durante el entrenamiento.</div>
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
 
-            <div class="mb-3">
+            <div class="col-lg-6">
                 <label asp-for="MuscleGroup" class="form-label">Grupo Muscular</label>
-                <input asp-for="MuscleGroup" class="form-control" />
+                <input asp-for="MuscleGroup" class="form-control" placeholder="Pecho, espalda, piernas..." />
                 <span asp-validation-for="MuscleGroup" class="text-danger"></span>
             </div>
 
-            <div class="mb-3">
+            <div class="col-lg-6">
                 <label asp-for="PlannedSets" class="form-label">Número de Series Planificadas</label>
-                <input asp-for="PlannedSets" class="form-control" />
+                <input asp-for="PlannedSets" class="form-control" type="number" min="1" />
+                <div class="field-hint">Define la referencia objetivo para visualizar mejor el progreso de cada sesion.</div>
                 <span asp-validation-for="PlannedSets" class="text-danger"></span>
             </div>
 
-            <div class="mb-3">
+            <div class="col-12">
                 <label asp-for="Instructions" class="form-label">Instrucciones</label>
-                <textarea asp-for="Instructions" class="form-control" rows="4"></textarea>
+                <textarea asp-for="Instructions" class="form-control" rows="5" placeholder="Notas de tecnica, tempo, agarre o cualquier detalle util."></textarea>
                 <span asp-validation-for="Instructions" class="text-danger"></span>
             </div>
+        </div>
 
-            <button type="submit" class="btn btn-primary">Guardar</button>
-            <a asp-page="Index" class="btn btn-outline-secondary ms-2">Cancelar</a>
-        </form>
-    </div>
+        <div class="form-actions mt-4">
+            <button type="submit" class="btn btn-primary">Guardar ejercicio</button>
+            <a asp-page="Index" class="btn btn-outline-secondary">Cancelar</a>
+        </div>
+    </form>
 </div>

@@ -2,14 +2,14 @@
 
 @if (!Model.Any())
 {
-    <div class="location-empty-state text-center py-5">
-        <h2 class="h4 mb-2">Todavía no hay ubicaciones</h2>
-        <p class="text-muted mb-0">Crea la primera ubicación para poder asociarla a futuras sesiones.</p>
+    <div class="location-empty-state empty-state">
+        <h2>Todavia no hay ubicaciones</h2>
+        <p>Crea la primera ubicacion para poder asociarla a futuras sesiones y mantener el entorno mejor organizado.</p>
     </div>
 }
 else
 {
-    <div class="table-responsive">
+    <div class="table-shell table-responsive">
         <table class="table table-hover align-middle mb-0">
             <thead>
                 <tr>
@@ -21,7 +21,10 @@ else
                 @foreach (var location in Model)
                 {
                     <tr>
-                        <td class="fw-semibold">@location.Name</td>
+                        <td>
+                            <span class="record-title">@location.Name</span>
+                            <span class="record-subtitle">Ubicacion disponible para futuras sesiones</span>
+                        </td>
                         <td>
                             <div class="d-flex justify-content-end gap-2">
                                 <button type="button"

@@ -1,98 +1,112 @@
 ﻿@page "{id:int}"
 @model GymTracker.Pages.Plans.DetailModel
 
-<div class="container py-4">
+@{
+    ViewData["Title"] = Model.PlanDto.Name;
+}
 
-    <!-- HEADER PLAN -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
+<section class="page-shell">
+    <div class="page-hero d-flex flex-column flex-xl-row justify-content-between gap-4 align-items-xl-center">
         <div>
-            <h2 class="mb-0">@Model.PlanDto.Name</h2>
-            <small class="text-muted">Gestiona ejercicios del plan</small>
+            <p class="page-kicker">Detalle de plan</p>
+            <h1 class="page-title">@Model.PlanDto.Name</h1>
+            <p class="page-subtitle">@(string.IsNullOrWhiteSpace(Model.PlanDto.Description) ? "Gestiona los ejercicios asociados al plan y manten una rutina facil de revisar y ajustar." : Model.PlanDto.Description)</p>
         </div>
-
-        <span class="badge bg-primary fs-6">
-            @Model.PlanExercises.Count ejercicios
-        </span>
+        <div class="hero-actions">
+            <span class="metric-chip">@Model.PlanExercises.Count ejercicios vinculados</span>
+            <a asp-page="Index" class="btn btn-outline-primary">Volver a planes</a>
+        </div>
     </div>
 
-    <div class="row g-4">
-
-        <!-- LEFT: PLAN -->
-        <div class="col-lg-5">
-
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-white">
-                    <strong>Ejercicios del plan</strong>
+    <div class="content-grid two-columns">
+        <div class="section-panel">
+            <div class="panel-header">
+                <div>
+                    <h2 class="panel-title">Ejercicios del plan</h2>
+                    <p class="panel-subtitle">Consulta el orden actual y elimina elementos cuando quieras ajustar la rutina.</p>
                 </div>
+            </div>
 
-                <div class="list-group list-group-flush">
-
+            @if (!Model.PlanExercises.Any())
+            {
+                <div class="empty-state">
+                    <h2>Este plan todavia no tiene ejercicios</h2>
+                    <p>Busca en la biblioteca de la derecha para añadir los primeros movimientos.</p>
+                </div>
+            }
+            else
+            {
+                <div class="list-stack">
                     @foreach (var ex in Model.PlanExercises)
                     {
-                        <div class="list-group-item d-flex justify-content-between align-items-center">
-
+                        <div class="stack-item">
                             <div>
-                                <div class="fw-semibold">@ex.Name</div>
-                                <small class="text-muted">@ex.MuscleGroup</small>
+                                <div class="stack-item-title">@ex.Name</div>
+                                <div class="stack-item-meta">@(string.IsNullOrWhiteSpace(ex.MuscleGroup) ? "Sin grupo muscular definido" : ex.MuscleGroup)</div>
                             </div>
 
                             <form method="post" asp-page-handler="RemoveExercise">
                                 <input type="hidden" name="exerciseId" value="@ex.Id" />
-                                <button class="btn btn-sm btn-outline-danger">
-                                    ✕
-                                </button>
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Quitar</button>
                             </form>
-
                         </div>
                     }
+                </div>
+            }
+        </div>
 
+        <div class="section-panel align-self-start">
+            <div class="panel-header">
+                <div>
+                    <h2 class="panel-title">Añadir ejercicios</h2>
+                    <p class="panel-subtitle">Busca por nombre y agrega ejercicios sin salir de la vista del plan.</p>
                 </div>
             </div>
 
-        </div>
-
-        <!-- RIGHT: LIBRARY -->
-        <div class="col-lg-7">
-
-            <div class="card shadow-sm border-0">
-
-                <div class="card-header bg-white">
-                    <strong>Añadir ejercicios</strong>
-                </div>
-
-                <div class="card-body">
-
-                    <!-- SEARCH -->
-                    <form method="get" class="mb-3">
-                        <input type="hidden" name="id" value="@RouteData.Values["id"]" />
-                        <input type="text" class="form-control mb-3"
-                            placeholder="Buscar ejercicio... (press, squat, curl...)" name="searchExercise" /> 
-                    </form>
-
-                    <!-- LIST -->
-                    <div class="list-group">
-
-                        @foreach (var ex in Model.SearchResults)
-                        {
-                            <div class="list-group-item d-flex justify-content-between align-items-center">
-
-                                <div>
-                                    <div class="fw-semibold">@ex.Name</div>
-                                    <small class="text-muted">@ex.MuscleGroup</small>
-                                </div>
-                                <form method="post" asp-page-handler="AddExercise">
-                                    <input type="hidden" name="id" value="@Model.Id" />
-                                    <input type="hidden" name="exerciseId" value="@ex.Id" />
-                                    <input type="hidden" name="searchExercise" value="@Model.SearchExerciseQuery" />
-                                    <button type="submit" class="btn btn-sm btn-outline-primary">
-                                        Añadir
-                                    </button>
-                                </form>
-                            </div>
-                        }
+            <form method="get" class="mb-4">
+                <input type="hidden" name="id" value="@RouteData.Values["id"]" />
+                <div class="row g-2">
+                    <div class="col-sm-8">
+                        <input type="text"
+                               class="form-control"
+                               placeholder="Buscar ejercicio por nombre"
+                               name="searchExercise"
+                               value="@Model.SearchExerciseQuery" />
+                    </div>
+                    <div class="col-sm-4 d-grid">
+                        <button type="submit" class="btn btn-primary">Buscar</button>
                     </div>
                 </div>
-            </div>
+            </form>
+
+            @if (!Model.SearchResults.Any())
+            {
+                <div class="empty-state">
+                    <h3>No hay resultados disponibles</h3>
+                    <p>Prueba con otro termino de busqueda o crea un ejercicio nuevo desde la biblioteca principal.</p>
+                </div>
+            }
+            else
+            {
+                <div class="list-stack">
+                    @foreach (var ex in Model.SearchResults)
+                    {
+                        <div class="stack-item">
+                            <div>
+                                <div class="stack-item-title">@ex.Name</div>
+                                <div class="stack-item-meta">@(string.IsNullOrWhiteSpace(ex.MuscleGroup) ? "Sin grupo muscular definido" : ex.MuscleGroup)</div>
+                            </div>
+
+                            <form method="post" asp-page-handler="AddExercise">
+                                <input type="hidden" name="id" value="@Model.Id" />
+                                <input type="hidden" name="exerciseId" value="@ex.Id" />
+                                <input type="hidden" name="searchExercise" value="@Model.SearchExerciseQuery" />
+                                <button type="submit" class="btn btn-sm btn-outline-primary">Añadir</button>
+                            </form>
+                        </div>
+                    }
+                </div>
+            }
         </div>
     </div>
-</div>
+</section>

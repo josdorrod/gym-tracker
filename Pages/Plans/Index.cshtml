@@ -1,40 +1,66 @@
 @page
 @model GymTracker.Pages.Plans.IndexModel
 @{
-    ViewData["Title"] = "Planes de entranamiento";
+    ViewData["Title"] = "Planes de entrenamiento";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h1>Planes de entrenamiento</h1>
-    <a asp-page="Create" class="btn btn-primary">Nuevo Plan</a>
-</div>
+<section class="page-shell">
+    <div class="page-hero d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-4">
+        <div>
+            <p class="page-kicker">Planificacion</p>
+            <h1 class="page-title">Planes de entrenamiento</h1>
+            <p class="page-subtitle">Organiza rutinas completas, asigna ejercicios y mantén una estructura mucho mas clara para el seguimiento semanal.</p>
+        </div>
+        <div class="hero-actions">
+            <a asp-page="Create" class="btn btn-primary">Nuevo plan</a>
+        </div>
+    </div>
 
-@if (!Model.Plans.Any())
-{
-    <p class="text-muted">No hay planes registrados todavía.</p>
-}
-else
-{
-    <table class="table table-hover">
-        <thead>
-            <tr>
-                <th>Nombre</th>
-                <th>Descripción</th>
-                <th class="text-end">Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var plan in Model.Plans)
-            {
-                <tr>
-                    <td>@plan.Name</td>
-                    <td class="text-break" style="white-space: pre-line;">@(plan.Description ?? "—")</td>
-                    <td class="text-end">
-                        <a asp-page="Detail" asp-route-id="@plan.Id" class="btn btn-sm btn-outline-secondary">Ver</a>
-                        <a asp-page="Edit" asp-route-id="@plan.Id" class="btn btn-sm btn-outline-secondary">Editar</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+    <div class="section-panel">
+        <div class="panel-header">
+            <div>
+                <h2 class="panel-title">Listado de planes</h2>
+                <p class="panel-subtitle">Accede al detalle de cada plan para gestionar ejercicios y revisar su estructura.</p>
+            </div>
+            <span class="metric-chip">@Model.Plans.Count() planes</span>
+        </div>
+
+        @if (!Model.Plans.Any())
+        {
+            <div class="empty-state">
+                <h2>No hay planes registrados todavia</h2>
+                <p>Crea un plan para empezar a agrupar ejercicios y dar contexto a tus sesiones de entrenamiento.</p>
+            </div>
+        }
+        else
+        {
+            <div class="table-shell table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Plan</th>
+                            <th>Descripcion</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var plan in Model.Plans)
+                        {
+                            <tr>
+                                <td>
+                                    <span class="record-title">@plan.Name</span>
+                                </td>
+                                <td class="text-break">@(string.IsNullOrWhiteSpace(plan.Description) ? "Sin descripcion" : plan.Description)</td>
+                                <td class="text-end">
+                                    <div class="d-inline-flex flex-wrap justify-content-end gap-2">
+                                        <a asp-page="Detail" asp-route-id="@plan.Id" class="btn btn-sm btn-outline-primary">Ver detalle</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</section>

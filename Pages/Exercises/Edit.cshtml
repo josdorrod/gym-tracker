@@ -4,9 +4,15 @@
     ViewData["Title"] = "Editar Ejercicio";
 }
 
-<h1>Editar Ejercicio</h1>
+<section class="page-shell">
+    <div class="page-hero">
+        <p class="page-kicker">Edicion</p>
+        <h1 class="page-title">Editar ejercicio</h1>
+        <p class="page-subtitle">Actualiza el nombre, grupo muscular o instrucciones manteniendo una ficha mas limpia y facil de revisar.</p>
+    </div>
 
-<partial name="_ExerciseForm" model="Model.ExerciseInput" />
+    <partial name="_ExerciseForm" model="Model.ExerciseInput" />
+</section>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

@@ -1,12 +1,18 @@
 @page
 @model GymTracker.Pages.Plans.CreateModel
 @{
-    ViewData["Title"] = "Nuevo Ejercicio";
+    ViewData["Title"] = "Nuevo Plan";
 }
 
-<h1>Nuevo Plan</h1>
+<section class="page-shell">
+    <div class="page-hero">
+        <p class="page-kicker">Alta de plan</p>
+        <h1 class="page-title">Nuevo plan</h1>
+        <p class="page-subtitle">Define una rutina base con mejor contexto visual y una descripcion mas util para el trabajo diario.</p>
+    </div>
 
-<partial name="_PlanForm" model="Model.Input" />
+    <partial name="_PlanForm" model="Model.Input" />
+</section>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
