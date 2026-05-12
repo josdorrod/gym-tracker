@@ -15,6 +15,7 @@ builder.Services.AddScoped<ILocationService, LocationService>();
 builder.Services.AddScoped<ISetService, SetService>();
 builder.Services.AddScoped<IDbExceptionHelper, SqliteDbExceptionHelper>();
 builder.Services.AddScoped<IPlanService, PlanService>();
+builder.Services.AddScoped<IWorkoutSessionService, WorkoutSessionService>();
 
 var app = builder.Build();
 
