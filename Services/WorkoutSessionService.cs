@@ -16,11 +16,15 @@ public class WorkoutSessionService(GymTrackerDbContext db) : IWorkoutSessionServ
     public async Task<WorkoutSessionActiveDTO?> GetActiveSessionAsync()
     {
         var utcNow = DateTime.UtcNow;
+        await CloseStaleOpenSessionsAsync(utcNow);
+
         var startOfTodayUtc = utcNow.Date;
         var startOfTomorrowUtc = startOfTodayUtc.AddDays(1);
 
         var session = await _db.WorkoutSessions
-            .Where(s => s.StartTime >= startOfTodayUtc && s.StartTime < startOfTomorrowUtc)
+            .Where(s => s.EndTime == null
+                && s.StartTime >= startOfTodayUtc
+                && s.StartTime < startOfTomorrowUtc)
             .OrderByDescending(s => s.StartTime)
             .Select(s => new WorkoutSessionActiveDTO
             {
@@ -40,6 +44,9 @@ public class WorkoutSessionService(GymTrackerDbContext db) : IWorkoutSessionServ
     public async Task<int> CreateSessionAsync(WorkoutSessionCreateDTO sessionDto)
     {
         ArgumentNullException.ThrowIfNull(sessionDto);
+
+        var utcNow = DateTime.UtcNow;
+        await CloseStaleOpenSessionsAsync(utcNow);
 
         if (sessionDto.LocationId == 0)
         {
@@ -62,16 +69,76 @@ public class WorkoutSessionService(GymTrackerDbContext db) : IWorkoutSessionServ
             }
         }
 
+        var startOfTodayUtc = utcNow.Date;
+        var startOfTomorrowUtc = startOfTodayUtc.AddDays(1);
+        var activeSessionId = await _db.WorkoutSessions
+            .Where(s => s.EndTime == null
+                && s.StartTime >= startOfTodayUtc
+                && s.StartTime < startOfTomorrowUtc)
+            .OrderByDescending(s => s.StartTime)
+            .Select(s => (int?)s.Id)
+            .FirstOrDefaultAsync();
+
+        if (activeSessionId.HasValue)
+        {
+            return activeSessionId.Value;
+        }
+
         var session = new WorkoutSession
         {
             LocationId = sessionDto.LocationId,
             PlanId = sessionDto.PlanId,
-            StartTime = DateTime.UtcNow
+            StartTime = utcNow
         };
 
         _db.WorkoutSessions.Add(session);
         await _db.SaveChangesAsync();
 
         return session.Id;
+    }
+
+    /// <inheritdoc/>
+    public async Task<bool> CloseActiveSessionAsync()
+    {
+        var utcNow = DateTime.UtcNow;
+        await CloseStaleOpenSessionsAsync(utcNow);
+
+        var startOfTodayUtc = utcNow.Date;
+        var startOfTomorrowUtc = startOfTodayUtc.AddDays(1);
+        var session = await _db.WorkoutSessions
+            .Where(s => s.EndTime == null
+                && s.StartTime >= startOfTodayUtc
+                && s.StartTime < startOfTomorrowUtc)
+            .OrderByDescending(s => s.StartTime)
+            .FirstOrDefaultAsync();
+
+        if (session is null)
+        {
+            return false;
+        }
+
+        session.EndTime = utcNow;
+        await _db.SaveChangesAsync();
+        return true;
+    }
+
+    private async Task CloseStaleOpenSessionsAsync(DateTime utcNow)
+    {
+        var startOfTodayUtc = utcNow.Date;
+        var staleSessions = await _db.WorkoutSessions
+            .Where(s => s.EndTime == null && s.StartTime < startOfTodayUtc)
+            .ToListAsync();
+
+        if (staleSessions.Count == 0)
+        {
+            return;
+        }
+
+        foreach (var session in staleSessions)
+        {
+            session.EndTime = session.StartTime.Date.AddDays(1).AddTicks(-1);
+        }
+
+        await _db.SaveChangesAsync();
     }
 }

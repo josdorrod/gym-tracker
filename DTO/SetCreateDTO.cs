@@ -10,4 +10,7 @@ public class SetCreateDTO
     /// <summary>Gets or sets the number of repetitions performed.</summary>
     [Range(1, 999)]
     public int Reps { get; set; }
+
+    /// <summary>Gets or sets the workout session identifier.</summary>
+    public int? WorkoutSessionId { get; set; }
 }

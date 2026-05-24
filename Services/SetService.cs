@@ -63,6 +63,7 @@ public class SetService : ISetService
                 Weight = setDto.Weight,
                 Reps = setDto.Reps,
                 SetNumber = setNumber,
+                WorkoutSessionId = setDto.WorkoutSessionId,
                 CreatedAtUtcTicks = DateTime.UtcNow.Ticks,
             };
             _db.Sets.Add(setEntity);

@@ -20,4 +20,10 @@ public interface IWorkoutSessionService
     /// <param name="sessionDto">The session data (LocationId required, PlanId optional).</param>
     /// <returns>The identifier of the newly created session.</returns>
     Task<int> CreateSessionAsync(WorkoutSessionCreateDTO sessionDto);
+
+    /// <summary>
+    /// Closes the active workout session for today.
+    /// </summary>
+    /// <returns><see langword="true"/> when a session was closed; otherwise, <see langword="false"/>.</returns>
+    Task<bool> CloseActiveSessionAsync();
 }

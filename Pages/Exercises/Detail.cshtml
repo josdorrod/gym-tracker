@@ -105,6 +105,34 @@
         </div>
 
         <div class="form-card align-self-start">
+            @if (Model.ActiveSession is null)
+            {
+                <div class="alert alert-warning" role="alert">
+                    <h4 class="alert-heading">Sin sesión activa</h4>
+                    <p class="mb-2">Para registrar series necesitas iniciar una sesión de entrenamiento.</p>
+                    <hr>
+                    <a asp-page="/WorkoutSessions/Start" asp-route-returnUrl="@ViewContext.HttpContext.Request.Path" class="btn btn-warning btn-sm">Iniciar sesión</a>
+                </div>
+            }
+            else
+            {
+                <div class="detail-card mb-3">
+                    <div class="d-flex flex-column gap-3">
+                        <div class="d-flex flex-wrap align-items-center gap-2">
+                            <span class="badge bg-success">Sesión activa</span>
+                            <span>@Model.ActiveSession.LocationName</span>
+                            @if (!string.IsNullOrEmpty(Model.ActiveSession.PlanName))
+                            {
+                                <span class="text-muted">· @Model.ActiveSession.PlanName</span>
+                            }
+                        </div>
+                        <form method="post" asp-page-handler="EndSession">
+                            <button type="submit" class="btn btn-outline-danger btn-sm">Finalizar sesión</button>
+                        </form>
+                    </div>
+                </div>
+            }
+
             <p class="page-kicker">Nueva serie</p>
             @if (Model.GetSetCount + 1 <= Model.ExerciseDto.PlannedSets)
             {
@@ -117,25 +145,32 @@
                 <p class="text-soft mb-4">Puedes seguir registrando volumen adicional si lo necesitas.</p>
             }
 
-            <form method="post">
-                <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4" role="alert"></div>
+            @if (Model.ActiveSession is null)
+            {
+                <div class="text-soft">Inicia una sesión de entrenamiento para habilitar el registro de series.</div>
+            }
+            else
+            {
+                <form method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4" role="alert"></div>
 
-                <div class="mb-3">
-                    <label asp-for="NewSet.Weight" class="form-label">Peso (kg)</label>
-                    <input asp-for="NewSet.Weight" class="form-control" type="number" step="0.5" min="0" placeholder="Ej. 60" />
-                    <span asp-validation-for="NewSet.Weight" class="text-danger"></span>
-                </div>
+                    <div class="mb-3">
+                        <label asp-for="NewSet.Weight" class="form-label">Peso (kg)</label>
+                        <input asp-for="NewSet.Weight" class="form-control" type="number" step="0.5" min="0" placeholder="Ej. 60" />
+                        <span asp-validation-for="NewSet.Weight" class="text-danger"></span>
+                    </div>
 
-                <div class="mb-4">
-                    <label asp-for="NewSet.Reps" class="form-label">Repeticiones</label>
-                    <input asp-for="NewSet.Reps" class="form-control" type="number" min="1" placeholder="Ej. 10" />
-                    <span asp-validation-for="NewSet.Reps" class="text-danger"></span>
-                </div>
+                    <div class="mb-4">
+                        <label asp-for="NewSet.Reps" class="form-label">Repeticiones</label>
+                        <input asp-for="NewSet.Reps" class="form-control" type="number" min="1" placeholder="Ej. 10" />
+                        <span asp-validation-for="NewSet.Reps" class="text-danger"></span>
+                    </div>
 
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">Registrar serie</button>
-                </div>
-            </form>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Registrar serie</button>
+                    </div>
+                </form>
+            }
         </div>
     </div>
 </section>

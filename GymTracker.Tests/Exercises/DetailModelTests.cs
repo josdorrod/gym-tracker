@@ -4,6 +4,8 @@ using GymTracker.Pages.Exercises;
 using GymTracker.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.AspNetCore.Http;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -12,12 +14,17 @@ namespace GymTracker.Tests.Exercises;
 [TestClass]
 public class DetailModelTests
 {
-    private static (Mock<IExerciseService>, Mock<ISetService>, DetailModel) CreateSut()
+    private static (Mock<IExerciseService>, Mock<ISetService>, Mock<IWorkoutSessionService>, DetailModel) CreateSut()
     {
         var exerciseServiceMock = new Mock<IExerciseService>();
         var setServiceMock = new Mock<ISetService>();
-        var model = new DetailModel(exerciseServiceMock.Object, setServiceMock.Object);
-        return (exerciseServiceMock, setServiceMock, model);
+        var sessionServiceMock = new Mock<IWorkoutSessionService>();
+        var model = new DetailModel(exerciseServiceMock.Object, setServiceMock.Object, sessionServiceMock.Object);
+        model.PageContext = new PageContext
+        {
+            HttpContext = new DefaultHttpContext()
+        };
+        return (exerciseServiceMock, setServiceMock, sessionServiceMock, model);
     }
 
     [TestMethod]
@@ -31,10 +38,11 @@ public class DetailModelTests
             new SetDetailListDTO { Id = 10, Weight = 80, Reps = 8, SetNumber = 1 }
         };
 
-        var (exerciseServiceMock, setServiceMock, model) = CreateSut();
+        var (exerciseServiceMock, setServiceMock, sessionServiceMock, model) = CreateSut();
         exerciseServiceMock.Setup(s => s.GetExerciseByIdAsync(exerciseId)).ReturnsAsync(exerciseDto);
         setServiceMock.Setup(s => s.GetAllSetsAsync(exerciseId)).ReturnsAsync(sets);
         setServiceMock.Setup(s => s.GetTodaySetCount(exerciseId)).ReturnsAsync(1);
+        sessionServiceMock.Setup(s => s.GetActiveSessionAsync()).ReturnsAsync((WorkoutSessionActiveDTO?)null);
 
         // Act
         var result = await model.OnGetAsync(exerciseId);
@@ -50,7 +58,7 @@ public class DetailModelTests
     public async Task OnGetAsync_ExerciseDoesNotExist_ReturnsNotFound()
     {
         // Arrange
-        var (exerciseServiceMock, _, model) = CreateSut();
+        var (exerciseServiceMock, _, _, model) = CreateSut();
         exerciseServiceMock.Setup(s => s.GetExerciseByIdAsync(It.IsAny<int>())).ReturnsAsync((ExerciseCreateDTO?)null);
 
         // Act
@@ -65,7 +73,7 @@ public class DetailModelTests
     {
         // Arrange
         const int setId = 5;
-        var (_, setServiceMock, model) = CreateSut();
+        var (_, setServiceMock, _, model) = CreateSut();
         setServiceMock.Setup(s => s.DeleteSetAsync(setId)).ReturnsAsync(true);
 
         // Act
@@ -81,7 +89,7 @@ public class DetailModelTests
     {
         // Arrange
         const int nonExistentSetId = 9999;
-        var (_, setServiceMock, model) = CreateSut();
+        var (_, setServiceMock, _, model) = CreateSut();
         setServiceMock.Setup(s => s.DeleteSetAsync(nonExistentSetId)).ReturnsAsync(false);
 
         // Act
@@ -99,7 +107,7 @@ public class DetailModelTests
         const int setId2 = 2;
         const int setId3 = 3;
 
-        var (_, setServiceMock, model) = CreateSut();
+        var (_, setServiceMock, _, model) = CreateSut();
         setServiceMock.Setup(s => s.DeleteSetAsync(It.IsAny<int>())).ReturnsAsync(true);
 
         // Act & Assert
@@ -110,5 +118,18 @@ public class DetailModelTests
         setServiceMock.Verify(s => s.DeleteSetAsync(setId1), Times.Once);
         setServiceMock.Verify(s => s.DeleteSetAsync(setId2), Times.Once);
         setServiceMock.Verify(s => s.DeleteSetAsync(setId3), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task OnPostEndSessionAsync_CierraSesionActivaYRedirige()
+    {
+        const int exerciseId = 7;
+        var (_, _, sessionServiceMock, model) = CreateSut();
+        sessionServiceMock.Setup(s => s.CloseActiveSessionAsync()).ReturnsAsync(true);
+
+        var result = await model.OnPostEndSessionAsync(exerciseId);
+
+        result.Should().BeOfType<RedirectToPageResult>();
+        sessionServiceMock.Verify(s => s.CloseActiveSessionAsync(), Times.Once);
     }
 }
