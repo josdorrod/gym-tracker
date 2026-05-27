@@ -1,0 +1,187 @@
+name: CI & Deploy to Home Server (rsync + docker compose, atomic)
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  SSH_PORT: 22
+  RELEASES_DIR: releases
+  CURRENT_LINK: current
+  KEEP_RELEASES: 5
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Run tests
+        run: dotnet test --no-build --verbosity normal
+
+  deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: ${{ needs.build-and-test.result == 'success' }}
+    environment: production
+    env:
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_USER: ${{ secrets.SSH_USER }}
+      SSH_PORT: ${{ secrets.SSH_PORT || env.SSH_PORT }}
+      DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+      HEALTHCHECK_URL: ${{ secrets.HEALTHCHECK_URL || '' }}
+      KEEP_RELEASES: ${{ secrets.KEEP_RELEASES || env.KEEP_RELEASES }}
+    steps:
+      - name: Validate required secrets
+        run: |
+          set -euo pipefail
+          missing=()
+          [ -z "${SSH_HOST}" ] && missing+=("SSH_HOST")
+          [ -z "${SSH_USER}" ] && missing+=("SSH_USER")
+          [ -z "${DEPLOY_PATH}" ] && missing+=("DEPLOY_PATH")
+          [ -z "${SSH_KNOWN_HOSTS}" ] && missing+=("SSH_KNOWN_HOSTS")
+          if [ ${#missing[@]} -gt 0 ]; then
+            echo "ERROR: Missing required secrets: ${missing[*]}"
+            exit 1
+          fi
+          echo "All required secrets are present."
+        env:
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+        shell: bash
+
+      - name: Checkout (for files to rsync)
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Add deploy key to SSH agent
+        uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Set known_hosts from secret
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          echo "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+        shell: bash
+
+      - name: Prepare release name
+        id: release
+        run: echo "RELEASE_NAME=$(date -u +%Y%m%dT%H%M%SZ)-${GITHUB_SHA::8}" >> $GITHUB_OUTPUT
+
+      - name: Rsync repository to server (into new release dir)
+        run: |
+          rsync -az --delete \
+            -e "ssh -p ${SSH_PORT} -o StrictHostKeyChecking=yes -o IdentitiesOnly=yes -o ConnectTimeout=10" \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='node_modules' \
+            --exclude='.env' \
+            --exclude='.env.*' \
+            --exclude='*.db*' \
+            --exclude='secrets/' \
+            --exclude='*.pfx' \
+            --exclude='*.p12' \
+            --exclude='*.tar' \
+            ./ ${SSH_USER}@${SSH_HOST}:${DEPLOY_PATH}/${RELEASES_DIR}/${{ steps.release.outputs.RELEASE_NAME }}/
+        shell: bash
+
+      - name: Perform remote deploy (atomic symlink + docker compose)
+        run: |
+          ssh -p ${SSH_PORT} \
+            -o StrictHostKeyChecking=yes \
+            -o IdentitiesOnly=yes \
+            -o ConnectTimeout=10 \
+            ${SSH_USER}@${SSH_HOST} << 'EOF'
+            set -euo pipefail
+            REPO_ROOT="${DEPLOY_PATH}"
+            RELEASES_DIR="${REPO_ROOT}/${RELEASES_DIR}"
+            RELEASE_NAME="${{ steps.release.outputs.RELEASE_NAME }}"
+            NEW_RELEASE="${RELEASES_DIR}/${RELEASE_NAME}"
+            CURRENT_LINK="${REPO_ROOT}/${CURRENT_LINK}"
+
+            echo "==> Preparing release: ${RELEASE_NAME}"
+            mkdir -p "${RELEASES_DIR}"
+            if [ ! -d "${NEW_RELEASE}" ]; then
+              echo "ERROR: Release directory missing: ${NEW_RELEASE}"
+              exit 1
+            fi
+
+            echo "==> Swapping symlink to new release"
+            ln -sfn "${NEW_RELEASE}" "${CURRENT_LINK}"
+            cd "${CURRENT_LINK}"
+
+            echo "==> Stopping old containers"
+            docker compose down --remove-orphans
+
+            echo "==> Building and starting new containers"
+            if ! docker compose up -d --build --remove-orphans; then
+              echo "ERROR: docker compose up failed. Rolling back..."
+              PREVIOUS_RELEASE=$(ls -1t "${RELEASES_DIR}" | head -2 | tail -1)
+              if [ -n "${PREVIOUS_RELEASE}" ]; then
+                ln -sfn "${RELEASES_DIR}/${PREVIOUS_RELEASE}" "${CURRENT_LINK}"
+                cd "${CURRENT_LINK}"
+                echo "==> Restarting previous release: ${PREVIOUS_RELEASE}"
+                docker compose down --remove-orphans
+                docker compose up -d --remove-orphans
+                echo "Rollback complete: ${PREVIOUS_RELEASE} is running"
+              else
+                echo "ERROR: No previous release found for rollback"
+              fi
+              exit 1
+            fi
+
+            echo "==> Pruning unused images"
+            docker image prune -f
+
+            echo "==> Cleaning old releases (keeping last ${KEEP_RELEASES})"
+            cd "${RELEASES_DIR}"
+            ls -1t | tail -n +$((KEEP_RELEASES+1)) | xargs -r rm -rf
+
+            echo "==> Deploy complete"
+          EOF
+        shell: bash
+
+      - name: Healthcheck (optional, retries)
+        if: ${{ env.HEALTHCHECK_URL != '' }}
+        run: |
+          set -euo pipefail
+          n=0
+          max=6
+          until [ $n -ge $max ]
+          do
+            if curl --silent --fail --connect-timeout 5 --max-time 10 "${HEALTHCHECK_URL}"; then
+              echo "Healthcheck passed."
+              exit 0
+            fi
+            n=$((n+1))
+            echo "Healthcheck attempt $n/$max failed; retrying in 5s..."
+            sleep 5
+          done
+          echo "Healthcheck failed after $max attempts. Exiting with error to trigger workflow failure."
+          exit 1
+        shell: bash

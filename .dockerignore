@@ -1,0 +1,15 @@
+.git
+.github
+.env
+.env.*
+*.db*
+node_modules
+*.tar
+secrets/
+*.pfx
+*.p12
+.vscode
+.idea
+.vs
+*.md
+!README.md
