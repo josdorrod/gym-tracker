@@ -1,0 +1,19 @@
+@page
+@model GymTracker.Pages.Exercises.CreateModel
+@{
+    ViewData["Title"] = "Nuevo Ejercicio";
+}
+
+<section class="page-shell">
+    <div class="page-hero">
+        <p class="page-kicker">Alta de ejercicio</p>
+        <h1 class="page-title">Nuevo ejercicio</h1>
+        <p class="page-subtitle">Crea ejercicios con una estructura clara para reutilizarlos en planes y registrar series sin ambiguedad.</p>
+    </div>
+
+    <partial name="_ExerciseForm" model="Model.Input" />
+</section>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

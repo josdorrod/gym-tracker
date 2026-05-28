@@ -1,0 +1,63 @@
+@page
+@model GymTracker.Pages.WorkoutSessions.StartModel
+@{
+    ViewData["Title"] = "Iniciar Sesión";
+}
+
+<section class="page-shell">
+    <div class="page-hero">
+        <p class="page-kicker">Sesión de entrenamiento</p>
+        <h1 class="page-title">Iniciar sesión</h1>
+        <p class="page-subtitle">Selecciona la ubicación donde vas a entrenar. El plan es opcional.</p>
+    </div>
+
+    <div class="form-card">
+        <form method="post">
+            <input type="hidden" name="ReturnUrl" value="@Model.ReturnUrl" />
+
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4" role="alert"></div>
+
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <label asp-for="Input.LocationId" class="form-label">Ubicación</label>
+                    <select asp-for="Input.LocationId" class="form-select">
+                        <option value="">Selecciona una ubicación</option>
+                        @foreach (var location in Model.Locations)
+                        {
+                            <option value="@location.Id">@location.Name</option>
+                        }
+                    </select>
+                    <span asp-validation-for="Input.LocationId" class="text-danger"></span>
+                </div>
+
+                <div class="col-lg-6">
+                    <label asp-for="Input.PlanId" class="form-label">Plan (opcional)</label>
+                    <select asp-for="Input.PlanId" class="form-select">
+                        <option value="">Sin plan</option>
+                        @foreach (var plan in Model.Plans)
+                        {
+                            <option value="@plan.Id">@plan.Name</option>
+                        }
+                    </select>
+                    <div class="field-hint">Asocia esta sesión a un plan si estás siguiendo una rutina.</div>
+                </div>
+            </div>
+
+            <div class="form-actions mt-4">
+                <button type="submit" class="btn btn-primary">Iniciar entrenamiento</button>
+                @if (!string.IsNullOrEmpty(Model.ReturnUrl))
+                {
+                    <a href="@Model.ReturnUrl" class="btn btn-outline-secondary">Cancelar</a>
+                }
+                else
+                {
+                    <a asp-page="/Exercises/Index" class="btn btn-outline-secondary">Cancelar</a>
+                }
+            </div>
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

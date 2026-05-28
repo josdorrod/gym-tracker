@@ -1,0 +1,8 @@
+@model GymTracker.DTO.LocationEditDTO
+
+<div class="mb-3">
+    <label asp-for="Name" class="form-label">Nombre</label>
+    <input asp-for="Name" class="form-control" autocomplete="organization" placeholder="Ej. Gym centro" />
+    <div class="field-hint">Usa un nombre corto y reconocible para identificar rapidamente el gimnasio o la sede.</div>
+    <span asp-validation-for="Name" class="text-danger"></span>
+</div>

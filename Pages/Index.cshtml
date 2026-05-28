@@ -1,0 +1,74 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Inicio";
+}
+
+<section class="page-shell">
+    <div class="page-hero">
+        <div class="row g-4 align-items-center">
+            <div class="col-lg-7">
+                <p class="page-kicker">Panel principal</p>
+                <h1 class="page-title">Entrena con una interfaz clara, ordenada y lista para el dia a dia.</h1>
+                <p class="page-subtitle">GymTracker centraliza ejercicios, planes y ubicaciones en una experiencia mas limpia para que registrar progreso y ajustar rutinas requiera menos pasos y menos friccion.</p>
+                <div class="hero-actions mt-4">
+                    <a class="btn btn-primary" asp-page="/Plans/Index">Ver planes</a>
+                    <a class="btn btn-outline-secondary" asp-page="/Exercises/Index">Explorar ejercicios</a>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="summary-grid">
+                    <div class="summary-card">
+                        <p class="page-kicker mb-2">Organizacion</p>
+                        <h2 class="h5 mb-2">Rutinas estructuradas</h2>
+                        <p class="mb-0">Agrupa ejercicios por plan y manten una estructura consistente en cada sesion.</p>
+                    </div>
+                    <div class="summary-card">
+                        <p class="page-kicker mb-2">Seguimiento</p>
+                        <h2 class="h5 mb-2">Registro rapido</h2>
+                        <p class="mb-0">Anota series, peso y repeticiones sin perder contexto del ejercicio actual.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="dashboard-card">
+            <div class="card-icon mb-3">EX</div>
+            <h2 class="h4 mb-2">Ejercicios</h2>
+            <p class="mb-4">Consulta la biblioteca, define grupos musculares y registra instrucciones utiles para cada movimiento.</p>
+            <a class="btn btn-outline-primary" asp-page="/Exercises/Index">Gestionar ejercicios</a>
+        </div>
+        <div class="dashboard-card">
+            <div class="card-icon mb-3">PL</div>
+            <h2 class="h4 mb-2">Planes</h2>
+            <p class="mb-4">Crea rutinas mas legibles, combina ejercicios y manten cada plan listo para entrenar.</p>
+            <a class="btn btn-outline-primary" asp-page="/Plans/Index">Gestionar planes</a>
+        </div>
+        <div class="dashboard-card">
+            <div class="card-icon mb-3">UB</div>
+            <h2 class="h4 mb-2">Ubicaciones</h2>
+            <p class="mb-4">Organiza gimnasios y sedes desde un flujo rapido con modales y acciones directas.</p>
+            <a class="btn btn-outline-primary" asp-page="/Locations/Index">Gestionar ubicaciones</a>
+        </div>
+    </div>
+
+    <div class="metric-grid">
+        <div class="metric-card">
+            <p class="page-kicker mb-2">Claridad</p>
+            <h2 class="h5 mb-2">Jerarquia visual mas fuerte</h2>
+            <p class="mb-0">Los bloques principales destacan las acciones clave y reducen el ruido visual.</p>
+        </div>
+        <div class="metric-card">
+            <p class="page-kicker mb-2">Uso diario</p>
+            <h2 class="h5 mb-2">Menos clics innecesarios</h2>
+            <p class="mb-0">Las tareas habituales quedan visibles desde el primer pliegue y con mejor espaciado.</p>
+        </div>
+        <div class="metric-card">
+            <p class="page-kicker mb-2">Consistencia</p>
+            <h2 class="h5 mb-2">Mismo patron en todo el sitio</h2>
+            <p class="mb-0">Tablas, formularios, tarjetas y detalles comparten una misma base visual.</p>
+        </div>
+    </div>
+</section>

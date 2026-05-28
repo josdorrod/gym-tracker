@@ -1,0 +1,37 @@
+﻿@page
+@model ErrorModel
+@{
+    ViewData["Title"] = "Error";
+}
+
+<section class="page-shell">
+    <div class="page-hero">
+        <p class="page-kicker text-danger">Incidencia</p>
+        <h1 class="page-title">Se ha producido un error</h1>
+        <p class="page-subtitle">La solicitud no pudo completarse correctamente. Revisa los detalles disponibles y vuelve a intentarlo.</p>
+    </div>
+
+    <div class="content-grid two-columns">
+        <div class="section-panel">
+            <div class="detail-list">
+                <div class="detail-item">
+                    <span class="detail-label">Estado</span>
+                    <p class="detail-value">Ocurrio un error mientras se procesaba la solicitud actual.</p>
+                </div>
+                @if (Model.ShowRequestId)
+                {
+                    <div class="detail-item">
+                        <span class="detail-label">Request ID</span>
+                        <p class="detail-value"><code>@Model.RequestId</code></p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="detail-card">
+            <span class="detail-label">Modo desarrollo</span>
+            <p class="detail-value">Si activas el entorno <strong>Development</strong>, la aplicacion mostrara informacion mas detallada para depurar el problema.</p>
+            <p class="detail-value mb-0"><strong>No habilites Development en produccion.</strong> Exponer detalles internos puede revelar informacion sensible a usuarios finales.</p>
+        </div>
+    </div>
+</section>
