@@ -49,10 +49,10 @@ jobs:
     env:
       SSH_HOST: ${{ secrets.SSH_HOST }}
       SSH_USER: ${{ secrets.SSH_USER }}
-      SSH_PORT: ${{ secrets.SSH_PORT || env.SSH_PORT }}
+      SSH_PORT: ${{ secrets.SSH_PORT || '22' }}
       DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
       HEALTHCHECK_URL: ${{ secrets.HEALTHCHECK_URL || '' }}
-      KEEP_RELEASES: ${{ secrets.KEEP_RELEASES || env.KEEP_RELEASES }}
+      KEEP_RELEASES: ${{ secrets.KEEP_RELEASES || '5' }}
     steps:
       - name: Validate required secrets
         run: |
