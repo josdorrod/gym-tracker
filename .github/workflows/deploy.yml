@@ -3,7 +3,8 @@ name: CI & Deploy to Home Server (rsync + docker compose, atomic)
 on:
   push:
     branches:
-      - main
+      - test-deploy
+    workflow_dispatch:
 
 concurrency:
   group: deploy-${{ github.ref }}
@@ -61,14 +62,16 @@ jobs:
           [ -z "${SSH_HOST}" ] && missing+=("SSH_HOST")
           [ -z "${SSH_USER}" ] && missing+=("SSH_USER")
           [ -z "${DEPLOY_PATH}" ] && missing+=("DEPLOY_PATH")
-          [ -z "${SSH_KNOWN_HOSTS}" ] && missing+=("SSH_KNOWN_HOSTS")
+          [ -z "${TAILSCALE_CLIENT_ID}" ] && missing+=("TAILSCALE_CLIENT_ID")
+          [ -z "${TAILSCALE_SECRET}" ] && missing+=("TAILSCALE_SECRET")
           if [ ${#missing[@]} -gt 0 ]; then
             echo "ERROR: Missing required secrets: ${missing[*]}"
             exit 1
           fi
           echo "All required secrets are present."
         env:
-          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+          TAILSCALE_CLIENT_ID: ${{ secrets.TAILSCALE_CLIENT_ID }}
+          TAILSCALE_SECRET: ${{ secrets.TAILSCALE_SECRET }}
         shell: bash
 
       - name: Checkout (for files to rsync)
@@ -76,18 +79,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Add deploy key to SSH agent
-        uses: webfactory/ssh-agent@v0.10.0
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v4
         with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: Set known_hosts from secret
-        run: |
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          echo "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
-          chmod 600 ~/.ssh/known_hosts
-        shell: bash
+          oauth-client-id: ${{ secrets.TAILSCALE_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TAILSCALE_SECRET }}
+          tags: tag:ci
+          args: --ssh
 
       - name: Prepare release name
         id: release
@@ -96,7 +94,7 @@ jobs:
       - name: Rsync repository to server (into new release dir)
         run: |
           rsync -az --delete \
-            -e "ssh -p ${SSH_PORT} -o StrictHostKeyChecking=yes -o IdentitiesOnly=yes -o ConnectTimeout=10" \
+            -e "ssh -p ${SSH_PORT} -o ConnectTimeout=10" \
             --exclude='.git' \
             --exclude='.github' \
             --exclude='node_modules' \
@@ -113,8 +111,6 @@ jobs:
       - name: Perform remote deploy (atomic symlink + docker compose)
         run: |
           ssh -p ${SSH_PORT} \
-            -o StrictHostKeyChecking=yes \
-            -o IdentitiesOnly=yes \
             -o ConnectTimeout=10 \
             ${SSH_USER}@${SSH_HOST} << 'EOF'
             set -euo pipefail
