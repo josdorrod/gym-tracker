@@ -113,27 +113,28 @@ jobs:
 
       - name: Perform remote deploy (atomic symlink + docker compose)
         run: |
+          set -euo pipefail
           ssh -p ${SSH_PORT} \
             -o ConnectTimeout=10 \
             -o StrictHostKeyChecking=no \
-            ${SSH_USER}@${SSH_HOST} << 'EOF'
+            ${SSH_USER}@${SSH_HOST} << EOF
             set -euo pipefail
             REPO_ROOT="${DEPLOY_PATH}"
-            RELEASES_DIR="${REPO_ROOT}/${RELEASES_DIR}"
+            RELEASES_DIR="\${REPO_ROOT}/${RELEASES_DIR}"
             RELEASE_NAME="${{ steps.release.outputs.RELEASE_NAME }}"
-            NEW_RELEASE="${RELEASES_DIR}/${RELEASE_NAME}"
-            CURRENT_LINK="${REPO_ROOT}/${CURRENT_LINK}"
+            NEW_RELEASE="\${RELEASES_DIR}/\${RELEASE_NAME}"
+            CURRENT_LINK="\${REPO_ROOT}/${CURRENT_LINK}"
 
-            echo "==> Preparing release: ${RELEASE_NAME}"
-            mkdir -p "${RELEASES_DIR}"
-            if [ ! -d "${NEW_RELEASE}" ]; then
-              echo "ERROR: Release directory missing: ${NEW_RELEASE}"
+            echo "==> Preparing release: \${RELEASE_NAME}"
+            mkdir -p "\${RELEASES_DIR}"
+            if [ ! -d "\${NEW_RELEASE}" ]; then
+              echo "ERROR: Release directory missing: \${NEW_RELEASE}"
               exit 1
             fi
 
             echo "==> Swapping symlink to new release"
-            ln -sfn "${NEW_RELEASE}" "${CURRENT_LINK}"
-            cd "${CURRENT_LINK}"
+            ln -sfn "\${NEW_RELEASE}" "\${CURRENT_LINK}"
+            cd "\${CURRENT_LINK}"
 
             echo "==> Stopping old containers"
             docker compose down --remove-orphans
@@ -141,14 +142,14 @@ jobs:
             echo "==> Building and starting new containers"
             if ! docker compose up -d --build --remove-orphans; then
               echo "ERROR: docker compose up failed. Rolling back..."
-              PREVIOUS_RELEASE=$(ls -1t "${RELEASES_DIR}" | head -2 | tail -1)
-              if [ -n "${PREVIOUS_RELEASE}" ]; then
-                ln -sfn "${RELEASES_DIR}/${PREVIOUS_RELEASE}" "${CURRENT_LINK}"
-                cd "${CURRENT_LINK}"
-                echo "==> Restarting previous release: ${PREVIOUS_RELEASE}"
+              PREVIOUS_RELEASE=\$(ls -1t "\${RELEASES_DIR}" | head -2 | tail -1)
+              if [ -n "\${PREVIOUS_RELEASE}" ]; then
+                ln -sfn "\${RELEASES_DIR}/\${PREVIOUS_RELEASE}" "\${CURRENT_LINK}"
+                cd "\${CURRENT_LINK}"
+                echo "==> Restarting previous release: \${PREVIOUS_RELEASE}"
                 docker compose down --remove-orphans
                 docker compose up -d --remove-orphans
-                echo "Rollback complete: ${PREVIOUS_RELEASE} is running"
+                echo "Rollback complete: \${PREVIOUS_RELEASE} is running"
               else
                 echo "ERROR: No previous release found for rollback"
               fi
@@ -159,7 +160,7 @@ jobs:
             docker image prune -f
 
             echo "==> Cleaning old releases (keeping last ${KEEP_RELEASES})"
-            cd "${RELEASES_DIR}"
+            cd "\${RELEASES_DIR}"
             ls -1t | tail -n +$((KEEP_RELEASES+1)) | xargs -r rm -rf
 
             echo "==> Deploy complete"
