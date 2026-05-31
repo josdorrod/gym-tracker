@@ -87,6 +87,9 @@ jobs:
           tags: tag:ci
           args: --ssh
 
+      - name: Debug Tailscale connection
+        run: tailscale status
+
       - name: Prepare release name
         id: release
         run: echo "RELEASE_NAME=$(date -u +%Y%m%dT%H%M%SZ)-${GITHUB_SHA::8}" >> $GITHUB_OUTPUT
