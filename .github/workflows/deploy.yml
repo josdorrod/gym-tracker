@@ -94,7 +94,7 @@ jobs:
       - name: Rsync repository to server (into new release dir)
         run: |
           rsync -az --delete \
-            -e "ssh -p ${SSH_PORT} -o ConnectTimeout=10" \
+            -e "ssh -p ${SSH_PORT} -o ConnectTimeout=10 -o StrictHostKeyChecking=no" \
             --exclude='.git' \
             --exclude='.github' \
             --exclude='node_modules' \
@@ -112,6 +112,7 @@ jobs:
         run: |
           ssh -p ${SSH_PORT} \
             -o ConnectTimeout=10 \
+            -o StrictHostKeyChecking=no \
             ${SSH_USER}@${SSH_HOST} << 'EOF'
             set -euo pipefail
             REPO_ROOT="${DEPLOY_PATH}"
