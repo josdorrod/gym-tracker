@@ -2,52 +2,83 @@
 
 @if (!Model.Any())
 {
-    <div class="location-empty-state empty-state">
+    <div class="empty-state">
         <h2>Todavia no hay ubicaciones</h2>
         <p>Crea la primera ubicacion para poder asociarla a futuras sesiones y mantener el entorno mejor organizado.</p>
     </div>
 }
 else
 {
-    <div class="table-shell table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th class="text-end">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var location in Model)
-                {
+    <div class="d-none d-md-block">
+        <div class="table-shell">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
                     <tr>
-                        <td>
-                            <span class="record-title">@location.Name</span>
-                            <span class="record-subtitle">Ubicacion disponible para futuras sesiones</span>
-                        </td>
-                        <td>
-                            <div class="d-flex justify-content-end gap-2">
-                                <button type="button"
-                                        class="btn btn-sm btn-outline-secondary"
-                                        data-modal-url="@Url.Page("Edit", new { id = location.Id })"
-                                        data-modal-title="Editar ubicación"
-                                        data-modal-refresh-url="@Url.Page("List")"
-                                        data-modal-refresh-target="#locations-list-container">
-                                    Editar
-                                </button>
-                                <button type="button"
-                                        class="btn btn-sm btn-outline-danger"
-                                        data-modal-url="@Url.Page("Delete", new { id = location.Id })"
-                                        data-modal-title="Eliminar ubicación"
-                                        data-modal-refresh-url="@Url.Page("List")"
-                                        data-modal-refresh-target="#locations-list-container">
-                                    Eliminar
-                                </button>
-                            </div>
-                        </td>
+                        <th>Nombre</th>
+                        <th class="text-end">Acciones</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var location in Model)
+                    {
+                        <tr>
+                            <td>
+                                <span class="record-title">@location.Name</span>
+                                <span class="record-subtitle">Ubicación disponible para futuras sesiones</span>
+                            </td>
+                            <td>
+                                <div class="d-flex justify-content-end gap-2">
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-secondary"
+                                            data-modal-url="@Url.Page("Edit", new { id = location.Id })"
+                                            data-modal-title="Editar ubicación"
+                                            data-modal-refresh-url="@Url.Page("List")"
+                                            data-modal-refresh-target="#locations-list-container">
+                                        Editar
+                                    </button>
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-danger"
+                                            data-modal-url="@Url.Page("Delete", new { id = location.Id })"
+                                            data-modal-title="Eliminar ubicación"
+                                            data-modal-refresh-url="@Url.Page("List")"
+                                            data-modal-refresh-target="#locations-list-container">
+                                        Eliminar
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="d-md-none mobile-list">
+        @foreach (var location in Model)
+        {
+            <div class="mobile-list-item">
+                <div class="mobile-item-header">
+                    <span class="record-title">@location.Name</span>
+                </div>
+                <div class="mobile-item-actions">
+                    <button type="button"
+                            class="btn btn-outline-secondary"
+                            data-modal-url="@Url.Page("Edit", new { id = location.Id })"
+                            data-modal-title="Editar ubicación"
+                            data-modal-refresh-url="@Url.Page("List")"
+                            data-modal-refresh-target="#locations-list-container">
+                        Editar
+                    </button>
+                    <button type="button"
+                            class="btn btn-outline-danger"
+                            data-modal-url="@Url.Page("Delete", new { id = location.Id })"
+                            data-modal-title="Eliminar ubicación"
+                            data-modal-refresh-url="@Url.Page("List")"
+                            data-modal-refresh-target="#locations-list-container">
+                        Eliminar
+                    </button>
+                </div>
+            </div>
+        }
     </div>
 }

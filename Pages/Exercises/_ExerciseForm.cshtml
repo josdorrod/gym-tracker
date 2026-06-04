@@ -18,9 +18,9 @@
             </div>
 
             <div class="col-lg-6">
-                <label asp-for="PlannedSets" class="form-label">Número de Series Planificadas</label>
-                <input asp-for="PlannedSets" class="form-control" type="number" min="1" />
-                <div class="field-hint">Define la referencia objetivo para visualizar mejor el progreso de cada sesion.</div>
+                <label asp-for="PlannedSets" class="form-label">Número de series planificadas</label>
+                <input asp-for="PlannedSets" class="form-control" type="number" min="1" inputmode="numeric" />
+                <div class="field-hint">Define la referencia objetivo para visualizar mejor el progreso de cada sesión.</div>
                 <span asp-validation-for="PlannedSets" class="text-danger"></span>
             </div>
 

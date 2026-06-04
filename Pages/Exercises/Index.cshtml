@@ -4,7 +4,7 @@
     ViewData["Title"] = "Ejercicios";
 }
 
-<section class="page-shell">
+<section class="d-flex flex-column gap-4">
     <div class="page-hero d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-4">
         <div>
             <p class="page-kicker">Biblioteca de ejercicios</p>
@@ -34,34 +34,60 @@
         }
         else
         {
-            <div class="table-shell table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead>
-                        <tr>
-                            <th>Ejercicio</th>
-                            <th>Series planificadas</th>
-                            <th class="text-end">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var exercise in Model.Exercises)
-                        {
+            <div class="d-none d-md-block">
+                <div class="table-shell">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
                             <tr>
-                                <td>
-                                    <span class="record-title">@exercise.Name</span>
-                                    <span class="record-subtitle">@(string.IsNullOrWhiteSpace(exercise.MuscleGroup) ? "Sin grupo muscular definido" : exercise.MuscleGroup)</span>
-                                </td>
-                                <td>@exercise.PlannedSets</td>
-                                <td class="text-end">
-                                    <div class="d-inline-flex flex-wrap justify-content-end gap-2">
-                                        <a asp-page="Detail" asp-route-id="@exercise.Id" class="btn btn-sm btn-outline-primary">Ver detalle</a>
-                                        <a asp-page="Edit" asp-route-id="@exercise.Id" class="btn btn-sm btn-outline-secondary">Editar</a>
-                                    </div>
-                                </td>
+                                <th>Ejercicio</th>
+                                <th>Series planificadas</th>
+                                <th class="text-end">Acciones</th>
                             </tr>
-                        }
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach (var exercise in Model.Exercises)
+                            {
+                                <tr>
+                                    <td>
+                                        <span class="record-title">@exercise.Name</span>
+                                        <span class="record-subtitle">@(string.IsNullOrWhiteSpace(exercise.MuscleGroup) ? "Sin grupo muscular definido" : exercise.MuscleGroup)</span>
+                                    </td>
+                                    <td>@exercise.PlannedSets</td>
+                                    <td class="text-end">
+                                        <div class="d-inline-flex flex-wrap justify-content-end gap-2">
+                                            <a asp-page="Detail" asp-route-id="@exercise.Id" class="btn btn-sm btn-outline-primary">Ver detalle</a>
+                                            <a asp-page="Edit" asp-route-id="@exercise.Id" class="btn btn-sm btn-outline-secondary">Editar</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="d-md-none mobile-list">
+                @foreach (var exercise in Model.Exercises)
+                {
+                    <div class="mobile-list-item">
+                        <div class="mobile-item-header">
+                            <div>
+                                <span class="record-title">@exercise.Name</span>
+                                <span class="record-subtitle">@(string.IsNullOrWhiteSpace(exercise.MuscleGroup) ? "Sin grupo muscular definido" : exercise.MuscleGroup)</span>
+                            </div>
+                        </div>
+                        <div class="mobile-item-body">
+                            <div class="mobile-item-row">
+                                <span class="mobile-item-label">Series planificadas</span>
+                                <span class="mobile-item-value">@exercise.PlannedSets</span>
+                            </div>
+                        </div>
+                        <div class="mobile-item-actions">
+                            <a asp-page="Detail" asp-route-id="@exercise.Id" class="btn btn-outline-primary">Ver detalle</a>
+                            <a asp-page="Edit" asp-route-id="@exercise.Id" class="btn btn-outline-secondary">Editar</a>
+                        </div>
+                    </div>
+                }
             </div>
         }
     </div>
