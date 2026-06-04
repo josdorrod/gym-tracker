@@ -28,20 +28,26 @@ public class SetService : ISetService
         return setsTodayCount;
     }
 
-    public async Task<List<SetDetailListDTO>> GetAllSetsAsync(int exerciseId)
+    public async Task<List<SetDetailListDTO>> GetAllSetsAsync(int exerciseId, int? count = null)
     {
-        return await _db.Sets
-        .Where(s => s.ExerciseId == exerciseId)
-        .OrderByDescending(s => s.CreatedAtUtcTicks)
-        .Select(s => new SetDetailListDTO
+        var query = _db.Sets
+            .Where(s => s.ExerciseId == exerciseId)
+            .OrderByDescending(s => s.CreatedAtUtcTicks)
+            .Select(s => new SetDetailListDTO
+            {
+                Id = s.Id,
+                Weight = s.Weight,
+                Reps = s.Reps,
+                SetNumber = s.SetNumber,
+                CreatedAtUtcTicks = s.CreatedAtUtcTicks
+            });
+
+        if (count.HasValue)
         {
-            Id = s.Id,
-            Weight = s.Weight,
-            Reps = s.Reps,
-            SetNumber = s.SetNumber,
-            CreatedAtUtcTicks = s.CreatedAtUtcTicks
-        })
-        .ToListAsync();
+            query = query.Take(count.Value);
+        }
+
+        return await query.ToListAsync();
     }
 
     public async Task<int> CreateSetAsync(int exerciseId, SetCreateDTO setDto)

@@ -44,7 +44,7 @@ public class DetailModel : PageModel
             return NotFound();
         }
 
-        Sets = await _setService.GetAllSetsAsync(id);
+        Sets = await _setService.GetAllSetsAsync(id, 10);
         ExerciseDto = exercise;
 
         GetSetCount = await _setService.GetTodaySetCount(id);
@@ -69,7 +69,7 @@ public class DetailModel : PageModel
             if (exercise is null)
                 return NotFound();
 
-            Sets = await _setService.GetAllSetsAsync(id);
+            Sets = await _setService.GetAllSetsAsync(id, 10);
 
             return Page();
         }
