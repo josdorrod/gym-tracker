@@ -40,7 +40,7 @@ public class DetailModelTests
 
         var (exerciseServiceMock, setServiceMock, sessionServiceMock, model) = CreateSut();
         exerciseServiceMock.Setup(s => s.GetExerciseByIdAsync(exerciseId)).ReturnsAsync(exerciseDto);
-        setServiceMock.Setup(s => s.GetAllSetsAsync(exerciseId)).ReturnsAsync(sets);
+        setServiceMock.Setup(s => s.GetAllSetsAsync(exerciseId, It.IsAny<int?>())).ReturnsAsync(sets);
         setServiceMock.Setup(s => s.GetTodaySetCount(exerciseId)).ReturnsAsync(1);
         sessionServiceMock.Setup(s => s.GetActiveSessionAsync()).ReturnsAsync((WorkoutSessionActiveDTO?)null);
 
